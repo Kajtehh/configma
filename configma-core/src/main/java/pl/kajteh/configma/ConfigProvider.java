@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class ConfigProvider<T> {
 
@@ -57,7 +58,7 @@ public final class ConfigProvider<T> {
     private void syncFields(Class<?> clazz, Object currentInstance, String pathPrefix, boolean toConfig) throws ConfigException {
         for (Field field : Arrays.stream(clazz.getDeclaredFields())
                 .filter(field -> !field.isAnnotationPresent(ConfigIgnore.class))
-                .toList()) {
+                .collect(Collectors.toList())) {
             field.setAccessible(true);
 
             try {
