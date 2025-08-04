@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>core</artifactId>
+    <artifactId>configma-core</artifactId>
 
     <properties>
       <java.version>16</java.version>

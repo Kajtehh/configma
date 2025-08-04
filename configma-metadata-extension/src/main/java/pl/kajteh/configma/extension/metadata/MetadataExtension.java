@@ -1,8 +1,8 @@
-package pl.kajteh.configma.metadata;
+package pl.kajteh.configma.extension.metadata;
 
 import org.bukkit.configuration.file.YamlConfiguration;
-import pl.kajteh.configma.metadata.annotation.Comment;
-import pl.kajteh.configma.metadata.annotation.Description;
+import pl.kajteh.configma.extension.metadata.annotation.Comment;
+import pl.kajteh.configma.extension.metadata.annotation.Description;
 import pl.kajteh.configma.ConfigExtension;
 
 import java.lang.reflect.Field;

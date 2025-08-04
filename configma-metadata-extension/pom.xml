@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>configma.metadata</artifactId>
+    <artifactId>configma-metadata-extension</artifactId>
 
     <properties>
       <java.version>16</java.version>

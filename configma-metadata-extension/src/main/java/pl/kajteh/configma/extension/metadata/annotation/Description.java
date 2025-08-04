@@ -1,4 +1,4 @@
-package pl.kajteh.configma.metadata.annotation;
+package pl.kajteh.configma.extension.metadata.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

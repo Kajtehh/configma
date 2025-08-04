@@ -10,8 +10,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>core</module>
-        <module>metadata-extension</module>
+        <module>configma-core</module>
+        <module>configma-metadata-extension</module>
     </modules>
 
     <properties>
