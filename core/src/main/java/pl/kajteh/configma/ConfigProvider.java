@@ -1,7 +1,7 @@
 package pl.kajteh.configma;
 
 import org.bukkit.configuration.file.YamlConfiguration;
-import pl.kajteh.configma.annotation.ConfigField;
+import pl.kajteh.configma.annotation.Pathname;
 import pl.kajteh.configma.annotation.ConfigIgnore;
 import pl.kajteh.configma.exception.ConfigException;
 import pl.kajteh.configma.exception.ConfigProcessingException;
@@ -65,10 +65,10 @@ public final class ConfigProvider<T> {
 
                 if (value == null) continue;
 
-                final ConfigField configField = field.getAnnotation(ConfigField.class);
+                final Pathname pathname = field.getAnnotation(Pathname.class);
 
-                final String pathName = configField != null && !configField.value().isEmpty()
-                        ? configField.value()
+                final String pathName = pathname != null && !pathname.value().isEmpty()
+                        ? pathname.value()
                         : this.getFieldName(field);
 
                 final String path = pathPrefix + pathName;
