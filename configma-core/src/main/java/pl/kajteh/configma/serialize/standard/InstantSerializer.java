@@ -18,12 +18,12 @@ public class InstantSerializer implements ConfigSerializer<Instant> {
 
     @Override
     public Instant deserialize(Class<Instant> type, Object value) {
-        if (value instanceof String str) {
-            return Instant.parse(str);
+        if (value instanceof String) {
+            return Instant.parse((String) value);
         }
 
-        if (value instanceof Long epochMillis) {
-            return Instant.ofEpochMilli(epochMillis);
+        if (value instanceof Long) {
+            return Instant.ofEpochMilli((long) value);
         }
 
         throw new IllegalArgumentException("Cannot deserialize Instant from: " + value);

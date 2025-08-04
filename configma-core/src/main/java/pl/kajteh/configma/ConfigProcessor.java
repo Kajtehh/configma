@@ -29,7 +29,8 @@ public final class ConfigProcessor {
 
         if (serializer != null) value = this.serialize(serializer, value);
 
-        if (value instanceof Map<?, ?> map) {
+        if (value instanceof Map<?, ?>) {
+            final Map<?, ?> map = (Map<?, ?>) value;
             final Map<Object, Object> result = new LinkedHashMap<>();
 
             map.forEach((k, v) -> result.put(
@@ -40,7 +41,8 @@ public final class ConfigProcessor {
             return result;
         }
 
-        if (value instanceof Collection<?> collection) {
+        if (value instanceof Collection<?>) {
+            final Collection<?> collection = (Collection<?>) value;
             final Collection<Object> result = value instanceof List ? new ArrayList<>() : new LinkedHashSet<>();
 
             collection.forEach(item -> result.add(this.serializeValue(item.getClass(), item)));
@@ -54,35 +56,43 @@ public final class ConfigProcessor {
     private Object deserializeValue(Class<?> type, Object value) {
         final ConfigSerializer<?> serializer = this.getSerializer(type);
 
-        if (value instanceof ConfigurationSection section) {
+        if (value instanceof ConfigurationSection) {
+            final ConfigurationSection section = (ConfigurationSection) value;
             final Map<String, Object> rawValues = section.getValues(false);
             final Map<Object, Object> result = new LinkedHashMap<>();
 
-            rawValues.forEach((fieldName, rawVal) -> {
-                final Object key = fieldName;
+            rawValues.forEach((fieldName, rawValue) -> {
                 final Class<?> fieldType = this.resolveFieldType(type, fieldName);
                 final Type genericType = this.resolveGenericType(type, fieldName);
 
-                Object processedValue = this.deserializeValue(fieldType, rawVal);
+                Object processedValue = this.deserializeValue(fieldType, rawValue);
 
                 final ConfigSerializer<?> fieldSerializer = this.getSerializer(fieldType);
 
-                if (processedValue instanceof Map<?, ?> mapVal && fieldSerializer != null) {
-                    processedValue = this.deserialize(fieldSerializer, fieldType, mapVal);
-                }
+                if (processedValue instanceof Map) {
+                    final Map<?, ?> mapVal = (Map<?, ?>) processedValue;
 
-                if (processedValue instanceof Collection<?> colVal && genericType != null) {
-                    final Class<?> elementType = this.extractGenericClass(genericType);
-                    final Collection<Object> newCollection = this.createEmptyCollection(colVal);
-
-                    for (Object item : colVal) {
-                        newCollection.add(this.deserializeValue(elementType, item));
+                    if (fieldSerializer != null) {
+                        processedValue = this.deserialize(fieldSerializer, fieldType, mapVal);
                     }
-
-                    processedValue = newCollection;
                 }
 
-                result.put(key, processedValue);
+                if (processedValue instanceof Collection) {
+                    final Collection<?> colVal = (Collection<?>) processedValue;
+
+                    if (genericType != null) {
+                        final Class<?> elementType = this.extractGenericClass(genericType);
+                        final Collection<Object> newCollection = this.createEmptyCollection(colVal);
+
+                        for (Object item : colVal) {
+                            newCollection.add(this.deserializeValue(elementType, item));
+                        }
+
+                        processedValue = newCollection;
+                    }
+                }
+
+                result.put(fieldName, processedValue);
             });
 
             return serializer != null
@@ -90,7 +100,8 @@ public final class ConfigProcessor {
                     : result;
         }
 
-        if (value instanceof Collection<?> collection) {
+        if (value instanceof Collection<?>) {
+            final Collection<?> collection = (Collection<?>) value;
             final Collection<Object> result = createEmptyCollection(collection);
 
             collection.forEach(item -> result.add(this.deserializeValue(item.getClass(), item)));
@@ -120,12 +131,11 @@ public final class ConfigProcessor {
     }
 
     private Class<?> extractGenericClass(Type type) {
-        if (type instanceof ParameterizedType paramType) {
+        if (type instanceof ParameterizedType) {
+            final ParameterizedType paramType = (ParameterizedType) type;
             final Type arg = paramType.getActualTypeArguments()[0];
 
-            if (arg instanceof Class<?> clazz) {
-                return clazz;
-            }
+            if (arg instanceof Class<?>) return (Class<?>) arg;
         }
         return Object.class;
     }

@@ -16,10 +16,11 @@ public class EnumSerializer<T extends Enum<T>> implements ConfigSerializer<T> {
 
     @Override
     public T deserialize(Class<T> type, Object value) {
-        if (!(value instanceof String s)) {
+        if (!(value instanceof String)) {
             throw new IllegalArgumentException("Expected a String to deserialize enum");
         }
-        return Enum.valueOf(type, s);
+
+        return Enum.valueOf(type, (String) value);
     }
 
     @Override
