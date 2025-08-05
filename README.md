@@ -1,5 +1,5 @@
 # Configma – Simple Bukkit Configs API
-![Spigot API 1.12.2+](https://img.shields.io/badge/Spigot_API-1.12.2%2B-violet)
+![Spigot API 1.12+](https://img.shields.io/badge/Spigot_API-1.12%2B-violet)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Repository Size](https://img.shields.io/github/repo-size/Kajtehh/bukkit-configs.svg)
 [![](https://jitpack.io/v/Kajtehh/bukkit-configs.svg)](https://jitpack.io/#Kajtehh/bukkit-configs)
@@ -59,7 +59,7 @@ public class ExampleConfig {
 }
 ```
 
-## Build and load your config
+### Build and load your config
 ```java
 final Config<ExampleConfig> exampleConfig = Config.builder(this, ExampleConfig.class)
     .file("config.yml")
@@ -68,7 +68,7 @@ final Config<ExampleConfig> exampleConfig = Config.builder(this, ExampleConfig.c
     .build();
 ```
 
-## Create a serializer
+### Create a serializer
 ```java
 public class KitSerializer implements ConfigSerializer<Kit> {
 
