@@ -23,7 +23,7 @@ Add this repository to your `pom.xml`:
 Add the Configma core module:
 ```xml
 <dependency>
-    <groupId>com.github.Kajtehh.bukkit-configs</groupId>
+    <groupId>com.github.Kajtehh.configma</groupId>
     <artifactId>configma-core</artifactId>
     <version>1.0.1-SNAPSHOT</version>
 </dependency>
@@ -32,7 +32,7 @@ Add the Configma core module:
 If you want to use comments and descriptions in your config files, add the metadata extension (also requires Spigot API 1.19+):
 ```xml
 <dependency>
-    <groupId>com.github.Kajtehh.bukkit-configs</groupId>
+    <groupId>com.github.Kajtehh.configma</groupId>
     <artifactId>configma-metadata-extension</artifactId>
     <version>1.0.1-SNAPSHOT</version>
 </dependency>
