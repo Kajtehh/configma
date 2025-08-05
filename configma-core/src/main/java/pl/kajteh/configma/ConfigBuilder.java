@@ -3,8 +3,10 @@ package pl.kajteh.configma;
 import org.bukkit.plugin.java.JavaPlugin;
 import pl.kajteh.configma.exception.ConfigException;
 import pl.kajteh.configma.serializer.ConfigSerializer;
+import pl.kajteh.configma.serializer.standard.DateSerializer;
 import pl.kajteh.configma.serializer.standard.EnumSerializer;
 import pl.kajteh.configma.serializer.standard.InstantSerializer;
+import pl.kajteh.configma.serializer.standard.UUIDSerializer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,10 +20,17 @@ public final class ConfigBuilder<T> {
     private List<ConfigExtension> extensions = new ArrayList<>();
     private List<ConfigSerializer<?>> serializers = new ArrayList<>();
 
+    private static final List<ConfigSerializer<?>> STANDARD_SERIALIZERS = List.of(
+            new EnumSerializer<>(),
+            new InstantSerializer(),
+            new UUIDSerializer(),
+            new DateSerializer()
+    );
+
     public ConfigBuilder(JavaPlugin plugin, Class<T> clazz) {
         this.plugin = plugin;
         this.clazz = clazz;
-        this.serializers.addAll(List.of(new EnumSerializer<>(), new InstantSerializer()));
+        this.serializers.addAll(STANDARD_SERIALIZERS);
     }
 
     public ConfigBuilder<T> file(File file) {
