@@ -1,13 +1,13 @@
-package pl.kajteh.configma.serialize;
+package pl.kajteh.configma.serializer;
 
 import java.util.Map;
 
 @SuppressWarnings("unchecked")
-public class SerializeData {
+public class SerializedObject {
 
     private final Map<?, ?> serializedObject;
 
-    public SerializeData(Object object) {
+    public SerializedObject(Object object) {
         this.serializedObject = (Map<?, ?>) object;
     }
 

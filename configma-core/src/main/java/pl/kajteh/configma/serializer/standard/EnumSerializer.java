@@ -1,6 +1,6 @@
-package pl.kajteh.configma.serialize.standard;
+package pl.kajteh.configma.serializer.standard;
 
-import pl.kajteh.configma.serialize.ConfigSerializer;
+import pl.kajteh.configma.serializer.ConfigSerializer;
 
 public class EnumSerializer<T extends Enum<T>> implements ConfigSerializer<T> {
 

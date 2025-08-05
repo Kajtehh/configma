@@ -2,9 +2,9 @@ package pl.kajteh.configma;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import pl.kajteh.configma.exception.ConfigException;
-import pl.kajteh.configma.serialize.ConfigSerializer;
-import pl.kajteh.configma.serialize.standard.EnumSerializer;
-import pl.kajteh.configma.serialize.standard.InstantSerializer;
+import pl.kajteh.configma.serializer.ConfigSerializer;
+import pl.kajteh.configma.serializer.standard.EnumSerializer;
+import pl.kajteh.configma.serializer.standard.InstantSerializer;
 
 import java.io.File;
 import java.util.ArrayList;

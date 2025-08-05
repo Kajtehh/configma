@@ -1,7 +1,7 @@
 package pl.kajteh.configma;
 
 import org.bukkit.configuration.ConfigurationSection;
-import pl.kajteh.configma.serialize.ConfigSerializer;
+import pl.kajteh.configma.serializer.ConfigSerializer;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

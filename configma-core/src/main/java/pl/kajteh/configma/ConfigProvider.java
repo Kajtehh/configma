@@ -9,6 +9,7 @@ import pl.kajteh.configma.exception.ConfigProcessingException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -73,6 +74,8 @@ public final class ConfigProvider<T> {
                         : this.getFieldName(field);
 
                 final String path = pathPrefix + pathName;
+
+                // todo w docs dodaj wiadomosc ze nie moze byc final field
 
                 if (value instanceof ConfigSection) {
                     this.syncFields(value.getClass(), value, path + this.configuration.options().pathSeparator(), toConfig);
