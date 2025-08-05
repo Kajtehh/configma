@@ -26,7 +26,7 @@ Add the Configma core module:
 <dependency>
     <groupId>com.github.Kajtehh.configma</groupId>
     <artifactId>configma-core</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -35,7 +35,7 @@ If you want to use `comments` and `descriptions` in your config files, add the m
 <dependency>
     <groupId>com.github.Kajtehh.configma</groupId>
     <artifactId>configma-metadata-extension</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
 </dependency>
 ```
 
