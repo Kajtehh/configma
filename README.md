@@ -63,7 +63,8 @@ public class ExampleConfig {
     public Language language = Language.PL;
 
     // transient, final, and @ConfigIgnore fields are fully excluded—never saved or loaded.
-    @ConfigIgnore public String ignoredField = "This won't be saved";
+    @ConfigIgnore
+    public String ignoredField = "This won't be saved";
 
     // @Pathname customizes the YAML path for config subsections
     @Pathname("messages")
@@ -79,7 +80,7 @@ public class ExampleConfig {
 ### 🚀 Build and load your config
 ```java
 final Config<ExampleConfig> exampleConfig = Config.builder(this, ExampleConfig.class)
-    .file("config.yml") // or provide exact File
+    .file("config.yml") // or provide a File instance for a custom file location
     .extensions(new MetadataExtension())  // optional, add this for comments and descriptions support
     .serializers(new KitSerializer())    // register custom serializers if needed
     .build();
