@@ -22,9 +22,4 @@ public class EnumSerializer<T extends Enum<T>> implements ConfigSerializer<T> {
 
         return Enum.valueOf(type, (String) value);
     }
-
-    @Override
-    public Boolean matchesType(Class<?> clazz) {
-        return clazz.isEnum();
-    }
 }
