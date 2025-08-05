@@ -29,7 +29,7 @@ Add the Configma core module:
 </dependency>
 ```
 
-If you want to use comments and descriptions in your config files, add the metadata extension (also requires Spigot API 1.19+):
+If you want to use `comments` and `descriptions` in your config files, add the metadata extension (also requires Spigot API 1.19+):
 ```xml
 <dependency>
     <groupId>com.github.Kajtehh.configma</groupId>
