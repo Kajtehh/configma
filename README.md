@@ -39,7 +39,7 @@ If you want to use comments and descriptions in your config files, add the metad
 ```
 
 ## Usage Example
-### Define your config class
+### 📝 Define your config class
 ```java
 @Description(
         header = {
@@ -58,10 +58,13 @@ public class ExampleConfig {
             new Kit("Default", "kit.default", List.of(new ItemStack(Material.COOKED_BEEF, 32))),
             new Kit("Vip", "kit.vip", List.of(new ItemStack(Material.GOLDEN_CARROT, 64)))
     );
+
+    @Comment("Enums? No worries, it just works like any other type!")
+    public Language language = Language.PL;
 }
 ```
 
-### Build and load your config
+### 🚀 Build and load your config
 ```java
 final Config<ExampleConfig> exampleConfig = Config.builder(this, ExampleConfig.class)
     .file("config.yml")
@@ -70,7 +73,38 @@ final Config<ExampleConfig> exampleConfig = Config.builder(this, ExampleConfig.c
     .build();
 ```
 
-### Create a serializer
+### 🔍 Accessing configuration values
+Once you've built your config, accessing values is simple and flexible:
+```java
+exampleConfig.get(config -> {
+    getLogger().info("Language: " + config.language.name());
+});
+```
+```java
+// Get a specific value using a lambda
+Language language = exampleConfig.get(config -> config.language);
+```
+```java
+// Or access the config directly
+Language language = exampleConfig.get().language;
+```
+
+### ✏️ Editing, Saving & Reloading the config
+```java
+// Edit the config (does NOT save to file unless specified)
+// Using this method is recommended to ensure you work with the latest data when editing.
+exampleConfig.edit(config -> config.language = Language.EN);
+
+// Save current config state to file
+exampleConfig.save();
+```
+```java
+// Reload config from file (useful if edited externally)
+exampleConfig.reload();
+```
+
+### 🧩 Creating a serializer
+Custom serializers let you control how your objects are converted to and from YAML. They don't have to return just a `Map` — you can serialize to any object type that fits your needs.
 ```java
 public class KitSerializer implements ConfigSerializer<Kit> {
 
@@ -81,6 +115,8 @@ public class KitSerializer implements ConfigSerializer<Kit> {
 
     @Override
     public Object serialize(Kit kit) {
+        // You can serialize your object to any structure,
+        // here we use a Map, but it could be any other object type
         return Map.of(
                 "name", kit.name(),
                 "permission", kit.permission(),
