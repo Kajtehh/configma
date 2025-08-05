@@ -62,8 +62,8 @@ public class ExampleConfig {
     @Comment("Enums? No worries, it just works like any other type!")
     public Language language = Language.PL;
 
-    // Fields with @ConfigIgnore are fully excluded — not saved or loaded.
-    @ConfigIgnore public transient String temporaryValue;
+    // transient, final, and @ConfigIgnore fields are fully excluded—never saved or loaded.
+    @ConfigIgnore public String ignoredField = "This won't be saved";
 
     // @Pathname customizes the YAML path for config subsections
     @Pathname("messages")
@@ -79,7 +79,7 @@ public class ExampleConfig {
 ### 🚀 Build and load your config
 ```java
 final Config<ExampleConfig> exampleConfig = Config.builder(this, ExampleConfig.class)
-    .file("config.yml")
+    .file("config.yml") // or provide exact File
     .extensions(new MetadataExtension())  // optional, add this for comments and descriptions support
     .serializers(new KitSerializer())    // register custom serializers if needed
     .build();
