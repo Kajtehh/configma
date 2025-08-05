@@ -2,13 +2,14 @@ package pl.kajteh.configma;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import pl.kajteh.configma.annotation.Pathname;
-import pl.kajteh.configma.annotation.ConfigIgnore;
+import pl.kajteh.configma.annotation.IgnoreField;
 import pl.kajteh.configma.exception.ConfigException;
 import pl.kajteh.configma.exception.ConfigProcessingException;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,7 +58,9 @@ public final class ConfigProvider<T> {
 
     private void syncFields(Class<?> clazz, Object currentInstance, String pathPrefix, boolean toConfig) throws ConfigException {
         for (Field field : Arrays.stream(clazz.getDeclaredFields())
-                .filter(field -> !field.isAnnotationPresent(ConfigIgnore.class))
+                .filter(field -> !field.isAnnotationPresent(IgnoreField.class)
+                        && !Modifier.isFinal(field.getModifiers())
+                        && !Modifier.isTransient(field.getModifiers()))
                 .collect(Collectors.toList())) {
             field.setAccessible(true);
 

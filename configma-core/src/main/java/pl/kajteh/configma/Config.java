@@ -19,15 +19,15 @@ public final class Config<T> {
         return this.configProvider.getInstance();
     }
 
-    public T get(Consumer<T> instanceConsumer) {
+    public Config<T> get(Consumer<T> instanceConsumer) {
         final T instance = this.get();
 
         instanceConsumer.accept(instance);
 
-        return instance;
+        return this;
     }
 
-    public <R> R get(Function<T, R> function) {
+    public <R> R map(Function<T, R> function) {
         return function.apply(this.get());
     }
 
@@ -39,15 +39,17 @@ public final class Config<T> {
         this.configProvider.save(true);
     }
 
-    public void edit(Consumer<T> instanceConsumer) {
+    public Config<T> edit(Consumer<T> instanceConsumer) {
         this.edit(instanceConsumer, false);
+        return this;
     }
 
-    public void edit(Consumer<T> instanceConsumer, boolean save) {
+    public Config<T> edit(Consumer<T> instanceConsumer, boolean save) {
         this.reload();
         instanceConsumer.accept(this.get());
 
         if(save) this.save();
+        return this;
     }
 
     public static <T> ConfigBuilder<T> builder(JavaPlugin plugin, Class<T> clazz) {

@@ -2,11 +2,9 @@ package pl.kajteh.configma;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import pl.kajteh.configma.exception.ConfigException;
-import pl.kajteh.configma.serializer.ConfigSerializer;
-import pl.kajteh.configma.serializer.standard.DateSerializer;
-import pl.kajteh.configma.serializer.standard.EnumSerializer;
-import pl.kajteh.configma.serializer.standard.InstantSerializer;
-import pl.kajteh.configma.serializer.standard.UUIDSerializer;
+import pl.kajteh.configma.serialize.ConfigSerializer;
+import pl.kajteh.configma.serialize.pack.ConfigSerializerPack;
+import pl.kajteh.configma.serialize.pack.StandardSerializerPack;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -17,20 +15,15 @@ public final class ConfigBuilder<T> {
     private final Class<T> clazz;
     private File file;
     private T instance;
-    private List<ConfigExtension> extensions = new ArrayList<>();
-    private List<ConfigSerializer<?>> serializers = new ArrayList<>();
+    private final List<ConfigExtension> extensions = new ArrayList<>();
+    private final List<ConfigSerializer<?>> serializers = new ArrayList<>();
 
-    private static final List<ConfigSerializer<?>> STANDARD_SERIALIZERS = List.of(
-            new EnumSerializer<>(),
-            new InstantSerializer(),
-            new UUIDSerializer(),
-            new DateSerializer()
-    );
+    private static final ConfigSerializerPack STANDARD_SERIALIZER_PACK = new StandardSerializerPack();
 
     public ConfigBuilder(JavaPlugin plugin, Class<T> clazz) {
         this.plugin = plugin;
         this.clazz = clazz;
-        this.serializers.addAll(STANDARD_SERIALIZERS);
+        this.serializerPacks(STANDARD_SERIALIZER_PACK);
     }
 
     public ConfigBuilder<T> file(File file) {
@@ -50,6 +43,13 @@ public final class ConfigBuilder<T> {
 
     public ConfigBuilder<T> serializers(ConfigSerializer<?>... serializers) {
         this.serializers.addAll(List.of(serializers));
+        return this;
+    }
+
+    public ConfigBuilder<T> serializerPacks(ConfigSerializerPack... packs) {
+        for (ConfigSerializerPack pack : packs) {
+            this.serializers.addAll(pack.getSerializers());
+        }
         return this;
     }
 

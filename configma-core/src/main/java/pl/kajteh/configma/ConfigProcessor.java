@@ -1,9 +1,8 @@
 package pl.kajteh.configma;
 
 import org.bukkit.configuration.ConfigurationSection;
-import pl.kajteh.configma.serializer.ConfigSerializer;
+import pl.kajteh.configma.serialize.ConfigSerializer;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -26,6 +25,8 @@ public final class ConfigProcessor {
 
     private Object serializeValue(Class<?> type, Object value) {
         final ConfigSerializer<?> serializer = this.getSerializer(type);
+
+        if(type.isEnum()) return ((Enum<?>) value).name();
 
         if (serializer != null) value = this.serialize(serializer, value);
 
@@ -62,8 +63,8 @@ public final class ConfigProcessor {
             final Map<Object, Object> result = new LinkedHashMap<>();
 
             rawValues.forEach((fieldName, rawValue) -> {
-                final Class<?> fieldType = this.resolveFieldType(type, fieldName);
-                final Type genericType = this.resolveGenericType(type, fieldName);
+                final Class<?> fieldType = ConfigReflectionUtil.resolveFieldType(type, fieldName);
+                final Type genericType = ConfigReflectionUtil.resolveGenericType(type, fieldName);
 
                 Object processedValue = this.deserializeValue(fieldType, rawValue);
 
@@ -81,7 +82,7 @@ public final class ConfigProcessor {
                     final Collection<?> colVal = (Collection<?>) processedValue;
 
                     if (genericType != null) {
-                        final Class<?> elementType = this.extractGenericClass(genericType);
+                        final Class<?> elementType = ConfigReflectionUtil.extractGenericClass(genericType);
                         final Collection<Object> newCollection = this.createEmptyCollection(colVal);
 
                         for (Object item : colVal) {
@@ -102,42 +103,18 @@ public final class ConfigProcessor {
 
         if (value instanceof Collection<?>) {
             final Collection<?> collection = (Collection<?>) value;
-            final Collection<Object> result = createEmptyCollection(collection);
+            final Collection<Object> result = this.createEmptyCollection(collection);
 
             collection.forEach(item -> result.add(this.deserializeValue(item.getClass(), item)));
 
             return result;
         }
 
+        if(type.isEnum()) return this.parseEnum(type, value);
+
         return serializer != null
                 ? this.deserialize(serializer, type, value)
                 : value;
-    }
-
-    private Class<?> resolveFieldType(Class<?> parentClass, String fieldName) {
-        try {
-            return parentClass.getDeclaredField(fieldName).getType();
-        } catch (NoSuchFieldException e) {
-            return Object.class;
-        }
-    }
-
-    private Type resolveGenericType(Class<?> parentClass, String fieldName) {
-        try {
-            return parentClass.getDeclaredField(fieldName).getGenericType();
-        } catch (NoSuchFieldException e) {
-            return null;
-        }
-    }
-
-    private Class<?> extractGenericClass(Type type) {
-        if (type instanceof ParameterizedType) {
-            final ParameterizedType paramType = (ParameterizedType) type;
-            final Type arg = paramType.getActualTypeArguments()[0];
-
-            if (arg instanceof Class<?>) return (Class<?>) arg;
-        }
-        return Object.class;
     }
 
     private Collection<Object> createEmptyCollection(Collection<?> base) {
@@ -146,6 +123,15 @@ public final class ConfigProcessor {
 
     private ConfigSerializer<?> getSerializer(Class<?> type) {
         return this.serializers.get(type);
+    }
+
+    @SuppressWarnings("unchecked")
+    private  <T extends Enum<T>> T parseEnum(Class<?> enumType, Object value) {
+        if (!(value instanceof String)) {
+            throw new IllegalArgumentException("Expected String for enum but got: " + value.getClass().getName());
+        }
+
+        return Enum.valueOf((Class<T>) enumType, (String) value);
     }
 
     @SuppressWarnings("unchecked")
