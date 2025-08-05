@@ -2,7 +2,7 @@
 ![Spigot API 1.12+](https://img.shields.io/badge/Spigot_API-1.12%2B-violet)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Repository Size](https://img.shields.io/github/repo-size/Kajtehh/bukkit-configs.svg)
-[![](https://jitpack.io/v/Kajtehh/bukkit-configs.svg)](https://jitpack.io/#Kajtehh/bukkit-configs)
+[![](https://jitpack.io/v/Kajtehh/configma.svg)](https://jitpack.io/#Kajtehh/configma)
 
 Configma is a lightweight configuration library for Bukkit, Spigot, and Paper. It allows effortless serialization and deserialization of Java objects to YAML — directly from your objects, with no need to manually create or write YAML files.
 
@@ -61,6 +61,18 @@ public class ExampleConfig {
 
     @Comment("Enums? No worries, it just works like any other type!")
     public Language language = Language.PL;
+
+    // Fields with @ConfigIgnore are fully excluded — not saved or loaded.
+    @ConfigIgnore public transient String temporaryValue;
+
+    // @Pathname customizes the YAML path for config subsections
+    @Pathname("messages")
+    public MessagesSection messagesSection = new MessagesSection();
+
+    // Classes implementing ConfigSection define sections of the config
+    public static class MessagesSection implements ConfigSection {
+        public String hello = "Hello World!";
+    }
 }
 ```
 
