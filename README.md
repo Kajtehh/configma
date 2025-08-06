@@ -25,7 +25,7 @@ Add the Configma core module:
 <dependency>
     <groupId>com.github.Kajtehh.configma</groupId>
     <artifactId>configma-core</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -34,7 +34,7 @@ If you want to use `comments` and `descriptions` in your config files, add the m
 <dependency>
     <groupId>com.github.Kajtehh.configma</groupId>
     <artifactId>configma-metadata-extension</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -43,7 +43,7 @@ For more readable and user-friendly serializers of common Bukkit types like `Ite
 <dependency>
     <groupId>com.github.Kajtehh.configma</groupId>
     <artifactId>configma-bukkit-pack</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
 </dependency>
 ```
 
