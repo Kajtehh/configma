@@ -2,6 +2,7 @@ package pl.kajteh.configma.bukkit.serializer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import pl.kajteh.configma.serialization.ConfigSerializer;
 import pl.kajteh.configma.serialization.SerializedObject;

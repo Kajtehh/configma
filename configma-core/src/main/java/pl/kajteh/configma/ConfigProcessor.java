@@ -95,6 +95,10 @@ public final class ConfigProcessor {
                     }
                 }
 
+                if(fieldType.isEnum()) {
+                    processedValue = ConfigParseUtil.parseEnum(type, processedValue);
+                }
+
                 result.put(fieldName, processedValue);
             });
 
