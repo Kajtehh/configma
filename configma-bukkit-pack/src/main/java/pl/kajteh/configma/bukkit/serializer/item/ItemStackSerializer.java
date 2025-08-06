@@ -22,7 +22,7 @@ public class ItemStackSerializer implements ConfigSerializer<ItemStack> {
         if(itemStack.hasItemMeta()) serializedObject.set("meta", itemStack.getItemMeta());
         if(!itemStack.getEnchantments().isEmpty()) serializedObject.set("enchantments", itemStack.getEnchantments());
 
-        return serializedObject;
+        return serializedObject.toMap();
     }
 
     @Override
