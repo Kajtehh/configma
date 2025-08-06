@@ -11,6 +11,7 @@
 
     <modules>
         <module>configma-core</module>
+        <module>configma-bukkit-pack</module>
         <module>configma-metadata-extension</module>
     </modules>
 

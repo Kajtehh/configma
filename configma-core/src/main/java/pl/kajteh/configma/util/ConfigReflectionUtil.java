@@ -1,4 +1,4 @@
-package pl.kajteh.configma;
+package pl.kajteh.configma.util;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

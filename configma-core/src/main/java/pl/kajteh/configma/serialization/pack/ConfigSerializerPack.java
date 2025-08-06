@@ -1,6 +1,6 @@
-package pl.kajteh.configma.serialize.pack;
+package pl.kajteh.configma.serialization.pack;
 
-import pl.kajteh.configma.serialize.ConfigSerializer;
+import pl.kajteh.configma.serialization.ConfigSerializer;
 
 import java.util.List;
 

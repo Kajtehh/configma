@@ -1,6 +1,6 @@
-package pl.kajteh.configma.serialize.impl;
+package pl.kajteh.configma.serialization.impl;
 
-import pl.kajteh.configma.serialize.ConfigSerializer;
+import pl.kajteh.configma.serialization.ConfigSerializer;
 
 import java.util.UUID;
 

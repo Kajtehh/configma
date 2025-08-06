@@ -1,7 +1,9 @@
 package pl.kajteh.configma;
 
 import org.bukkit.configuration.ConfigurationSection;
-import pl.kajteh.configma.serialize.ConfigSerializer;
+import pl.kajteh.configma.serialization.ConfigSerializer;
+import pl.kajteh.configma.util.ConfigParseUtil;
+import pl.kajteh.configma.util.ConfigReflectionUtil;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -10,33 +12,33 @@ public final class ConfigProcessor {
 
     private final Map<Class<?>, ConfigSerializer<?>> serializers = new HashMap<>();
 
-    public ConfigProcessor(List<ConfigSerializer<?>> serializers) {
+    ConfigProcessor(List<ConfigSerializer<?>> serializers) {
         serializers.forEach(serializer ->
                 this.serializers.put(serializer.getTargetType(), serializer));
     }
 
     public Object process(Class<?> type, Object value) {
-        return this.serializeValue(type, value);
+        return serializeValue(type, value);
     }
 
     public Object processExisting(Class<?> type, Object value) {
-        return this.deserializeValue(type, value);
+        return deserializeValue(type, value);
     }
 
     private Object serializeValue(Class<?> type, Object value) {
-        final ConfigSerializer<?> serializer = this.getSerializer(type);
+        final ConfigSerializer<?> serializer = getSerializer(type);
 
         if(type.isEnum()) return ((Enum<?>) value).name();
 
-        if (serializer != null) value = this.serialize(serializer, value);
+        if (serializer != null) value = serialize(serializer, value);
 
         if (value instanceof Map<?, ?>) {
             final Map<?, ?> map = (Map<?, ?>) value;
             final Map<Object, Object> result = new LinkedHashMap<>();
 
             map.forEach((k, v) -> result.put(
-                    this.serializeValue(k.getClass(), k),
-                    this.serializeValue(v.getClass(), v)
+                    serializeValue(k.getClass(), k),
+                    serializeValue(v.getClass(), v)
             ));
 
             return result;
@@ -46,7 +48,7 @@ public final class ConfigProcessor {
             final Collection<?> collection = (Collection<?>) value;
             final Collection<Object> result = value instanceof List ? new ArrayList<>() : new LinkedHashSet<>();
 
-            collection.forEach(item -> result.add(this.serializeValue(item.getClass(), item)));
+            collection.forEach(item -> result.add(serializeValue(item.getClass(), item)));
 
             return result;
         }
@@ -55,7 +57,7 @@ public final class ConfigProcessor {
     }
 
     private Object deserializeValue(Class<?> type, Object value) {
-        final ConfigSerializer<?> serializer = this.getSerializer(type);
+        final ConfigSerializer<?> serializer = getSerializer(type);
 
         if (value instanceof ConfigurationSection) {
             final ConfigurationSection section = (ConfigurationSection) value;
@@ -66,15 +68,15 @@ public final class ConfigProcessor {
                 final Class<?> fieldType = ConfigReflectionUtil.resolveFieldType(type, fieldName);
                 final Type genericType = ConfigReflectionUtil.resolveGenericType(type, fieldName);
 
-                Object processedValue = this.deserializeValue(fieldType, rawValue);
+                Object processedValue = deserializeValue(fieldType, rawValue);
 
-                final ConfigSerializer<?> fieldSerializer = this.getSerializer(fieldType);
+                final ConfigSerializer<?> fieldSerializer = getSerializer(fieldType);
 
                 if (processedValue instanceof Map) {
                     final Map<?, ?> mapVal = (Map<?, ?>) processedValue;
 
                     if (fieldSerializer != null) {
-                        processedValue = this.deserialize(fieldSerializer, fieldType, mapVal);
+                        processedValue = deserialize(fieldSerializer, fieldType, mapVal);
                     }
                 }
 
@@ -83,10 +85,10 @@ public final class ConfigProcessor {
 
                     if (genericType != null) {
                         final Class<?> elementType = ConfigReflectionUtil.extractGenericClass(genericType);
-                        final Collection<Object> newCollection = this.createEmptyCollection(colVal);
+                        final Collection<Object> newCollection = createEmptyCollection(colVal);
 
                         for (Object item : colVal) {
-                            newCollection.add(this.deserializeValue(elementType, item));
+                            newCollection.add(deserializeValue(elementType, item));
                         }
 
                         processedValue = newCollection;
@@ -103,14 +105,14 @@ public final class ConfigProcessor {
 
         if (value instanceof Collection<?>) {
             final Collection<?> collection = (Collection<?>) value;
-            final Collection<Object> result = this.createEmptyCollection(collection);
+            final Collection<Object> result = createEmptyCollection(collection);
 
-            collection.forEach(item -> result.add(this.deserializeValue(item.getClass(), item)));
+            collection.forEach(item -> result.add(deserializeValue(item.getClass(), item)));
 
             return result;
         }
 
-        if(type.isEnum()) return this.parseEnum(type, value);
+        if(type.isEnum()) return ConfigParseUtil.parseEnum(type, value);
 
         return serializer != null
                 ? this.deserialize(serializer, type, value)
@@ -123,15 +125,6 @@ public final class ConfigProcessor {
 
     private ConfigSerializer<?> getSerializer(Class<?> type) {
         return this.serializers.get(type);
-    }
-
-    @SuppressWarnings("unchecked")
-    private  <T extends Enum<T>> T parseEnum(Class<?> enumType, Object value) {
-        if (!(value instanceof String)) {
-            throw new IllegalArgumentException("Expected String for enum but got: " + value.getClass().getName());
-        }
-
-        return Enum.valueOf((Class<T>) enumType, (String) value);
     }
 
     @SuppressWarnings("unchecked")

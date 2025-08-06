@@ -6,8 +6,6 @@ import java.lang.reflect.Field;
 
 public interface ConfigExtension {
 
-    String getName();
-
     default void onLoad(Class<?> configClass, YamlConfiguration configuration) {
 
     }

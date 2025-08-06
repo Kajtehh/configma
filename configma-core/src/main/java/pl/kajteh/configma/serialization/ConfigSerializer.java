@@ -1,4 +1,4 @@
-package pl.kajteh.configma.serialize;
+package pl.kajteh.configma.serialization;
 
 public interface ConfigSerializer<T> {
     Class<?> getTargetType();

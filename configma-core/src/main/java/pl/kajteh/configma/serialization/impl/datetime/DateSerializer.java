@@ -1,6 +1,6 @@
-package pl.kajteh.configma.serialize.impl.datetime;
+package pl.kajteh.configma.serialization.impl.datetime;
 
-import pl.kajteh.configma.serialize.ConfigSerializer;
+import pl.kajteh.configma.serialization.ConfigSerializer;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

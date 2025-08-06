@@ -11,11 +11,6 @@ import java.util.Arrays;
 public class MetadataExtension implements ConfigExtension {
 
     @Override
-    public String getName() {
-        return "metadata-extension";
-    }
-
-    @Override
     public void onLoad(Class<?> configClass, YamlConfiguration configuration) {
         final Description description = configClass.getAnnotation(Description.class);
 

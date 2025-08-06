@@ -1,9 +1,9 @@
-package pl.kajteh.configma.serialize.pack;
+package pl.kajteh.configma.serialization.pack;
 
-import pl.kajteh.configma.serialize.ConfigSerializer;
-import pl.kajteh.configma.serialize.impl.UUIDSerializer;
-import pl.kajteh.configma.serialize.impl.datetime.DateSerializer;
-import pl.kajteh.configma.serialize.impl.datetime.InstantSerializer;
+import pl.kajteh.configma.serialization.ConfigSerializer;
+import pl.kajteh.configma.serialization.impl.UUIDSerializer;
+import pl.kajteh.configma.serialization.impl.datetime.DateSerializer;
+import pl.kajteh.configma.serialization.impl.datetime.InstantSerializer;
 
 import java.util.List;
 

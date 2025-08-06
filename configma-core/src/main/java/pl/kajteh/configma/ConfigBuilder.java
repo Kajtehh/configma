@@ -2,9 +2,9 @@ package pl.kajteh.configma;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import pl.kajteh.configma.exception.ConfigException;
-import pl.kajteh.configma.serialize.ConfigSerializer;
-import pl.kajteh.configma.serialize.pack.ConfigSerializerPack;
-import pl.kajteh.configma.serialize.pack.StandardSerializerPack;
+import pl.kajteh.configma.serialization.ConfigSerializer;
+import pl.kajteh.configma.serialization.pack.ConfigSerializerPack;
+import pl.kajteh.configma.serialization.pack.StandardSerializerPack;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,17 +13,18 @@ import java.util.List;
 public final class ConfigBuilder<T> {
     private final JavaPlugin plugin;
     private final Class<T> clazz;
-    private File file;
-    private T instance;
+
     private final List<ConfigExtension> extensions = new ArrayList<>();
     private final List<ConfigSerializer<?>> serializers = new ArrayList<>();
 
     private static final ConfigSerializerPack STANDARD_SERIALIZER_PACK = new StandardSerializerPack();
 
-    public ConfigBuilder(JavaPlugin plugin, Class<T> clazz) {
+    private T instance;
+    private File file;
+
+    ConfigBuilder(JavaPlugin plugin, Class<T> clazz) {
         this.plugin = plugin;
         this.clazz = clazz;
-        this.serializerPacks(STANDARD_SERIALIZER_PACK);
     }
 
     public ConfigBuilder<T> file(File file) {
@@ -58,12 +59,6 @@ public final class ConfigBuilder<T> {
         return this;
     }
 
-    /* TODO: add debug
-    public ConfigBuilder<T> enableDebug() {
-        this.debug = true;
-        return this;
-    }*/
-
     public Config<T> build() {
         if(this.file == null) {
             throw new ConfigException("Config file cannot be null");
@@ -76,6 +71,8 @@ public final class ConfigBuilder<T> {
                 throw new ConfigException("Failed to instantiate config class " + this.clazz.getName(), e);
             }
         }
+
+        this.serializerPacks(STANDARD_SERIALIZER_PACK);
 
         final ConfigProcessor processor = new ConfigProcessor(this.serializers);
         final ConfigProvider<T> configProvider = new ConfigProvider<>(this.instance, this.file, processor, this.extensions);
