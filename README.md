@@ -2,7 +2,7 @@
 ![Spigot API 1.12+](https://img.shields.io/badge/Spigot_API-1.12%2B-violet)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Repository Size](https://img.shields.io/github/repo-size/Kajtehh/configma.svg)
-[![](https://jitpack.io/v/Kajtehh/configma.svg)](https://jitpack.io/#Kajtehh/configma)
+![Java 16](https://img.shields.io/badge/Java-16-g)
 
 Configma is a lightweight configuration library for Bukkit, Spigot, and Paper. It allows effortless serialization and deserialization of Java objects to YAML — directly from your objects, with no need to manually create or write YAML files.
 
