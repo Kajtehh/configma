@@ -118,34 +118,54 @@ exampleConfig.reload();
 
 ### 🧩 Creating a serializer
 Custom serializers let you control how your objects are converted to and from YAML. They don't have to return just a `Map` — you can serialize to any object type that fits your needs.
+
+Example of a complex object serializer (`ObjectSerializer`)
 ```java
-public class KitSerializer implements ConfigSerializer<Kit> {
+public class KitSerializer implements ObjectSerializer<Kit> {
 
     @Override
-    public Class<?> getTargetType() {
+    public void serialize(SerializationData data, Kit kit) {
+        data.add("name", kit.name());
+        data.add("permission", kit.permission());
+        data.add("items", kit.items());
+    }
+
+    @Override
+    public Kit deserialize(SerializedData data) {
+        return new Kit(
+                data.get("name"),
+                data.get("permission"),
+                data.get("items")
+        );
+    }
+
+    @Override
+    public Class<Kit> getType() {
         return Kit.class;
     }
+}
+```
+Example of a simple value serializer (`ValueSerializer`)
+```java
+public class DateSerializer implements ValueSerializer<Date> {
 
     @Override
-    public Object serialize(Kit kit) {
-        // You can serialize your object to any structure,
-        // here we use a Map, but it could be any other object type
-        return Map.of(
-                "name", kit.name(),
-                "permission", kit.permission(),
-                "items", kit.items()
-        );
+    public Object serialize(Date date) {
+        return date.getTime();
     }
 
     @Override
-    public Kit deserialize(Class<Kit> type, Object value) {
-        final SerializedObject serializedObject = new SerializedObject(value);
+    public Date deserialize(Object raw) {
+        if (raw instanceof Number number) {
+            return new Date(number.longValue());
+        }
+        
+        throw new IllegalArgumentException("Cannot deserialize to Date from: " + raw);
+    }
 
-        return new Kit(
-                serializedObject.get("name"),
-                serializedObject.get("permission"),
-                serializedObject.get("items")
-        );
+    @Override
+    public Class<Date> getType() {
+        return Date.class;
     }
 }
 ```
