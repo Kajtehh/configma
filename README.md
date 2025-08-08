@@ -14,8 +14,8 @@ Add this repository to your `pom.xml`:
 
 ```xml
 <repository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
+    <id>github</id>
+    <url>https://maven.pkg.github.com/Kajtehh/configma</url>
 </repository>
 ```
 
@@ -23,18 +23,18 @@ Add this repository to your `pom.xml`:
 Add the Configma core module:
 ```xml
 <dependency>
-    <groupId>com.github.Kajtehh.configma</groupId>
+    <groupId>pl.kajteh</groupId>
     <artifactId>configma-core</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
 </dependency>
 ```
 
 If you want to use `comments` and `descriptions` in your config files, add the metadata extension (also requires Spigot API 1.19+):
 ```xml
 <dependency>
-    <groupId>com.github.Kajtehh.configma</groupId>
+    <groupId>pl.kajteh</groupId>
     <artifactId>configma-metadata-extension</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
 </dependency>
 ```
 
