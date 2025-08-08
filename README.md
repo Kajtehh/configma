@@ -38,15 +38,6 @@ If you want to use `comments` and `descriptions` in your config files, add the m
 </dependency>
 ```
 
-For more readable and user-friendly serializers of common Bukkit types like `ItemStack`, `ItemMeta`, `PotionEffect`, and more, simply add the Bukkit serializers pack (for Spigot API 1.17+):
-```xml
-<dependency>
-    <groupId>com.github.Kajtehh.configma</groupId>
-    <artifactId>configma-bukkit-pack</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
-</dependency>
-```
-
 ## Usage Example
 ### 📝 Define your config class
 ```java
