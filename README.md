@@ -8,7 +8,7 @@ Configma is a lightweight configuration library for Bukkit, Spigot, and Paper. I
 
 ## Installation
 
-### Add JitPack repository
+### Add GitHub repository
 
 Add this repository to your `pom.xml`:
 
