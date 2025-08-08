@@ -7,12 +7,12 @@ import java.time.Instant;
 public class InstantSerializer implements ValueSerializer<Instant> {
 
     @Override
-    public Object serialize(Instant instant) {
+    public Object serialize(final Instant instant) {
         return instant.toString();
     }
 
     @Override
-    public Instant deserialize(Object raw) {
+    public Instant deserialize(final Object raw) {
         if (raw instanceof String str) {
             return Instant.parse(str);
         }
