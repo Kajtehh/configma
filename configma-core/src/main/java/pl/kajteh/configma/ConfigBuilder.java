@@ -1,8 +1,6 @@
 package pl.kajteh.configma;
 
 import org.bukkit.plugin.java.JavaPlugin;
-import pl.kajteh.configma.debugger.ConfigDebugger;
-import pl.kajteh.configma.debugger.Debugger;
 import pl.kajteh.configma.exception.ConfigException;
 import pl.kajteh.configma.serialization.serializer.Serializer;
 import pl.kajteh.configma.serialization.serializer.SerializerPack;
@@ -22,7 +20,6 @@ public final class ConfigBuilder<T> {
 
     private T instance;
     private File file;
-    private Debugger debugger;
 
     ConfigBuilder(JavaPlugin plugin, Class<T> clazz) {
         this.plugin = plugin;
@@ -60,11 +57,6 @@ public final class ConfigBuilder<T> {
 
     public ConfigBuilder<T> extensions(ConfigExtension... extensions) {
         this.extensions.addAll(List.of(extensions));
-        return this;
-    }
-
-    public ConfigBuilder<T> enableDebug() {
-        this.debugger = new ConfigDebugger(this.plugin.getLogger());
         return this;
     }
 
