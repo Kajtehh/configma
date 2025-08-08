@@ -23,13 +23,13 @@ public final class Config<T> {
         configProvider.save(true);
     }
 
-    public Config<T> edit(Consumer<T> consumer) throws ConfigException {
+    public Config<T> edit(final Consumer<T> consumer) throws ConfigException {
         reload();
         consumer.accept(get());
         return this;
     }
 
-    public Config<T> get(Consumer<T> consumer) {
+    public Config<T> get(final Consumer<T> consumer) {
         consumer.accept(get());
         return this;
     }
@@ -38,11 +38,11 @@ public final class Config<T> {
         return configProvider.getInstance();
     }
 
-    public <R> R map(Function<T, R> mapper) {
+    public <R> R map(final Function<T, R> mapper) {
         return mapper.apply(get());
     }
 
-    public static <T> ConfigBuilder<T> builder(JavaPlugin plugin, Class<T> clazz) {
+    public static <T> ConfigBuilder<T> builder(final JavaPlugin plugin, final Class<T> clazz) {
         return new ConfigBuilder<>(plugin, clazz);
     }
 }

@@ -1,24 +1,14 @@
 package pl.kajteh.configma.bukkit;
 
-import pl.kajteh.configma.bukkit.serializer.*;
-import pl.kajteh.configma.bukkit.serializer.item.ItemMetaSerializer;
-import pl.kajteh.configma.bukkit.serializer.item.ItemStackSerializer;
-import pl.kajteh.configma.serialization.ConfigSerializer;
-import pl.kajteh.configma.serialization.pack.ConfigSerializerPack;
+import pl.kajteh.configma.serialization.serializer.Serializer;
+import pl.kajteh.configma.serialization.serializer.SerializerPack;
 
 import java.util.List;
 
-public class BukkitSerializerPack implements ConfigSerializerPack {
+public class BukkitSerializerPack implements SerializerPack {
 
     @Override
-    public List<ConfigSerializer<?>> getSerializers() {
-        return List.of(
-                new ColorSerializer(),
-                new EnchantmentSerializer(),
-                new ItemMetaSerializer(),
-                new ItemStackSerializer(),
-                new LocationSerializer(),
-                new PotionEffectSerializer()
-        );
+    public List<Serializer<?>> getSerializers() {
+        return List.of(); // todo
     }
 }

@@ -13,4 +13,5 @@ public class ConfigParseUtil {
 
         return Enum.valueOf((Class<T>) enumType, (String) value);
     }
+
 }

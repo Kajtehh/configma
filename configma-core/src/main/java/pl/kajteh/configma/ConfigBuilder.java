@@ -1,10 +1,13 @@
 package pl.kajteh.configma;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import pl.kajteh.configma.debugger.ConfigDebugger;
+import pl.kajteh.configma.debugger.Debugger;
 import pl.kajteh.configma.exception.ConfigException;
-import pl.kajteh.configma.serialization.ConfigSerializer;
-import pl.kajteh.configma.serialization.pack.ConfigSerializerPack;
-import pl.kajteh.configma.serialization.pack.StandardSerializerPack;
+import pl.kajteh.configma.serialization.serializer.Serializer;
+import pl.kajteh.configma.serialization.serializer.SerializerPack;
+import pl.kajteh.configma.serialization.serializer.impl.InstantSerializer;
+import pl.kajteh.configma.serialization.serializer.impl.UUIDSerializer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,16 +18,17 @@ public final class ConfigBuilder<T> {
     private final Class<T> clazz;
 
     private final List<ConfigExtension> extensions = new ArrayList<>();
-    private final List<ConfigSerializer<?>> serializers = new ArrayList<>();
-
-    private static final ConfigSerializerPack STANDARD_SERIALIZER_PACK = new StandardSerializerPack();
+    private final List<Serializer<?>> serializers = new ArrayList<>();
 
     private T instance;
     private File file;
+    private Debugger debugger;
 
     ConfigBuilder(JavaPlugin plugin, Class<T> clazz) {
         this.plugin = plugin;
         this.clazz = clazz;
+
+        this.serializers.addAll(List.of(new InstantSerializer(), new UUIDSerializer()));
     }
 
     public ConfigBuilder<T> file(File file) {
@@ -42,13 +46,13 @@ public final class ConfigBuilder<T> {
         return this;
     }
 
-    public ConfigBuilder<T> serializers(ConfigSerializer<?>... serializers) {
+    public ConfigBuilder<T> serializers(Serializer<?>... serializers) {
         this.serializers.addAll(List.of(serializers));
         return this;
     }
 
-    public ConfigBuilder<T> serializerPacks(ConfigSerializerPack... packs) {
-        for (ConfigSerializerPack pack : packs) {
+    public ConfigBuilder<T> serializerPacks(SerializerPack... packs) {
+        for (SerializerPack pack : packs) {
             this.serializers.addAll(pack.getSerializers());
         }
         return this;
@@ -56,6 +60,11 @@ public final class ConfigBuilder<T> {
 
     public ConfigBuilder<T> extensions(ConfigExtension... extensions) {
         this.extensions.addAll(List.of(extensions));
+        return this;
+    }
+
+    public ConfigBuilder<T> enableDebug() {
+        this.debugger = new ConfigDebugger(this.plugin.getLogger());
         return this;
     }
 
@@ -72,10 +81,7 @@ public final class ConfigBuilder<T> {
             }
         }
 
-        this.serializerPacks(STANDARD_SERIALIZER_PACK);
-
-        final ConfigProcessor processor = new ConfigProcessor(this.serializers);
-        final ConfigProvider<T> configProvider = new ConfigProvider<>(this.instance, this.file, processor, this.extensions);
+        final ConfigProvider<T> configProvider = new ConfigProvider<>(this.instance, this.file, this.serializers, this.extensions);
 
         return new Config<>(configProvider);
     }

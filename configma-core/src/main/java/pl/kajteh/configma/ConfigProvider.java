@@ -2,6 +2,7 @@ package pl.kajteh.configma;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import pl.kajteh.configma.exception.ConfigException;
+import pl.kajteh.configma.serialization.serializer.Serializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,22 +13,22 @@ public final class ConfigProvider<T> {
     private final File file;
     private final T instance;
     private final YamlConfiguration configuration;
-    private final ConfigMapper synchronizer;
+    private final ConfigMapper configMapper;
 
-    public ConfigProvider(T instance, File file, ConfigProcessor processor, List<ConfigExtension> extensions) {
+    ConfigProvider(T instance, File file, List<Serializer<?>> serializers, List<ConfigExtension> extensions) {
         this.instance = instance;
         this.file = file;
 
         this.configuration = YamlConfiguration.loadConfiguration(file);
         this.configuration.options().copyDefaults(true);
 
-        this.synchronizer = new ConfigMapper(this.configuration, processor, extensions);
+        this.configMapper = new ConfigMapper(this.configuration, serializers, extensions);
 
         extensions.forEach(extension ->
                 extension.onLoad(this.instance.getClass(), this.configuration));
     }
 
-    public void save(boolean toConfig) throws ConfigException {
+    public void save(final boolean toConfig) throws ConfigException {
         this.syncFields(toConfig);
 
         try {
@@ -50,7 +51,7 @@ public final class ConfigProvider<T> {
         }
     }
 
-    private void syncFields(boolean toConfig) {
-        this.synchronizer.syncFields(this.instance.getClass(), this.instance, "", toConfig);
+    private void syncFields(final boolean toConfig) {
+        this.configMapper.syncFields(this.instance.getClass(), this.instance, "", toConfig);
     }
 }

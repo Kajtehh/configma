@@ -8,29 +8,15 @@ public final class ConfigReflectionUtil {
     private ConfigReflectionUtil() {
     }
 
-    public static Class<?> resolveFieldType(Class<?> parentClass, String fieldName) {
-        try {
-            return parentClass.getDeclaredField(fieldName).getType();
-        } catch (NoSuchFieldException e) {
-            return Object.class;
+    public static Class<?> getClassFromType(Type type) {
+        if (type instanceof Class<?>) {
+            return (Class<?>) type;
+        } else if (type instanceof ParameterizedType) {
+            Type rawType = ((ParameterizedType) type).getRawType();
+            if (rawType instanceof Class<?>) {
+                return (Class<?>) rawType;
+            }
         }
-    }
-
-    public static Type resolveGenericType(Class<?> parentClass, String fieldName) {
-        try {
-            return parentClass.getDeclaredField(fieldName).getGenericType();
-        } catch (NoSuchFieldException e) {
-            return null;
-        }
-    }
-
-    public static Class<?> extractGenericClass(Type type) {
-        if (type instanceof ParameterizedType) {
-            final ParameterizedType paramType = (ParameterizedType) type;
-            final Type arg = paramType.getActualTypeArguments()[0];
-
-            if (arg instanceof Class<?>) return (Class<?>) arg;
-        }
-        return Object.class;
+        throw new IllegalArgumentException("Cannot convert Type to Class: " + type);
     }
 }

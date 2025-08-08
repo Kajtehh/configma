@@ -6,33 +6,37 @@ import pl.kajteh.configma.annotation.IgnoreSerialization;
 import pl.kajteh.configma.annotation.Pathname;
 import pl.kajteh.configma.exception.ConfigException;
 import pl.kajteh.configma.exception.ConfigProcessingException;
+import pl.kajteh.configma.serialization.serializer.Serializer;
+import pl.kajteh.configma.type.ConfigTypeCache;
+import pl.kajteh.configma.type.ConfigTypeService;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ConfigMapper {
 
     private final YamlConfiguration configuration;
-    private final ConfigProcessor processor;
     private final List<ConfigExtension> extensions;
+    private final ConfigFieldCache fieldCache;
+    private final ConfigTypeCache typeCache;
+    private final ConfigTypeService typeService;
+    private final ConfigProcessor processor;
 
-    ConfigMapper(YamlConfiguration configuration, ConfigProcessor processor, List<ConfigExtension> extensions) {
+    ConfigMapper(YamlConfiguration configuration, List<Serializer<?>> serializers, List<ConfigExtension> extensions) {
         this.configuration = configuration;
-        this.processor = processor;
         this.extensions = extensions;
+
+        this.fieldCache = new ConfigFieldCache();
+        this.typeCache = new ConfigTypeCache();
+        this.typeService = new ConfigTypeService(typeCache);
+        this.processor = new ConfigProcessor(typeCache, serializers);
     }
 
-    public void syncFields(Class<?> clazz, Object instance, String pathPrefix, boolean toConfig) throws ConfigException {
-        final List<Field> fields = Arrays.stream(clazz.getDeclaredFields())
-                .filter(field -> !field.isAnnotationPresent(IgnoreField.class))
-                .filter(field -> !Modifier.isFinal(field.getModifiers()))
-                .filter(field -> !Modifier.isTransient(field.getModifiers()))
-                .collect(Collectors.toList());
-
-        fields.forEach(field -> {
+    public void syncFields(final Class<?> clazz, final Object instance, final String pathPrefix, final boolean toConfig) throws ConfigException {
+        this.typeCache.clear();
+        this.fieldCache.getFields(clazz).forEach(field -> {
             field.setAccessible(true);
 
             try {
@@ -43,14 +47,16 @@ public class ConfigMapper {
                 final Pathname pathname = field.getAnnotation(Pathname.class);
                 final String pathName = pathname != null && !pathname.value().isEmpty()
                         ? pathname.value()
-                        : getFieldName(field);
+                        : this.getFieldName(field);
 
                 final String path = pathPrefix + pathName;
 
                 if (value instanceof ConfigSection) {
-                    syncFields(value.getClass(), value, path + configuration.options().pathSeparator(), toConfig);
+                    this.syncFields(value.getClass(), value, path + configuration.options().pathSeparator(), toConfig);
                     return;
                 }
+
+                this.typeService.loadTypes(path, field.getType(), value);
 
                 final boolean ignoreSerialization = field.isAnnotationPresent(IgnoreSerialization.class);
 
@@ -58,21 +64,21 @@ public class ConfigMapper {
                     final Object finalValue = ignoreSerialization ? value : processor.process(field.getType(), value);
 
                     configuration.set(path, finalValue);
-                    callExtensions(clazz, path, field, finalValue);
+                    this.callExtensions(clazz, path, field, finalValue);
                     return;
                 }
 
                 if (configuration.contains(path)) {
                     final Object configValue = configuration.get(path);
 
-                    field.set(instance, ignoreSerialization ? configValue : processor.processExisting(field.getType(), configValue));
+                    field.set(instance, ignoreSerialization ? configValue : processor.processExisting(path, configValue));
                     return;
                 }
 
                 final Object finalValue = ignoreSerialization ? value : processor.process(field.getType(), value);
 
                 configuration.set(path, finalValue);
-                callExtensions(clazz, path, field, finalValue);
+                this.callExtensions(clazz, path, field, finalValue);
             } catch (IllegalAccessException e) {
                 throw new ConfigException("Failed to access field: " + field.getName(), e);
             } catch (ConfigProcessingException e) {
@@ -81,11 +87,11 @@ public class ConfigMapper {
         });
     }
 
-    private void callExtensions(Class<?> clazz, String path, Field field, Object finalValue) {
+    private void callExtensions(final Class<?> clazz, final String path, final Field field, final Object finalValue) {
         extensions.forEach(extension -> extension.onFieldSaved(clazz, configuration, path, field, finalValue));
     }
 
-    private String getFieldName(Field field) {
+    private String getFieldName(final Field field) {
         // todo: add more naming options
         return field.getName().replaceAll("([a-z])([A-Z])", "$1-$2").toLowerCase();
     }

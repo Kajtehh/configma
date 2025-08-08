@@ -1,143 +1,140 @@
 package pl.kajteh.configma;
 
 import org.bukkit.configuration.ConfigurationSection;
-import pl.kajteh.configma.serialization.ConfigSerializer;
+import pl.kajteh.configma.serialization.serializer.ObjectSerializer;
+import pl.kajteh.configma.serialization.serializer.Serializer;
+import pl.kajteh.configma.serialization.serializer.ValueSerializer;
+import pl.kajteh.configma.serialization.data.SerializationData;
+import pl.kajteh.configma.serialization.data.SerializedData;
+import pl.kajteh.configma.type.ConfigTypeCache;
 import pl.kajteh.configma.util.ConfigParseUtil;
-import pl.kajteh.configma.util.ConfigReflectionUtil;
 
-import java.lang.reflect.Type;
 import java.util.*;
 
 public final class ConfigProcessor {
 
-    private final Map<Class<?>, ConfigSerializer<?>> serializers = new HashMap<>();
+    private final Map<Class<?>, Serializer<?>> serializers = new HashMap<>();
 
-    ConfigProcessor(List<ConfigSerializer<?>> serializers) {
+    private final ConfigTypeCache typeCache;
+
+    // todo add automatic serializer based on reflection
+
+    ConfigProcessor(ConfigTypeCache typeCache, List<Serializer<?>> serializers) {
+        this.typeCache = typeCache;
+
         serializers.forEach(serializer ->
-                this.serializers.put(serializer.getTargetType(), serializer));
+                this.serializers.put(serializer.getType(), serializer));
     }
 
-    public Object process(Class<?> type, Object value) {
-        return serializeValue(type, value);
-    }
+    public Object process(final Class<?> type, Object value) {
+        if(type.isEnum()) return value.toString();
 
-    public Object processExisting(Class<?> type, Object value) {
-        return deserializeValue(type, value);
-    }
+        final Serializer<?> serializer = this.findSerializer(type);
 
-    private Object serializeValue(Class<?> type, Object value) {
-        final ConfigSerializer<?> serializer = getSerializer(type);
-
-        if(type.isEnum()) return ((Enum<?>) value).name();
-
-        if (serializer != null) value = serialize(serializer, value);
-
-        if (value instanceof Map<?, ?>) {
-            final Map<?, ?> map = (Map<?, ?>) value;
-            final Map<Object, Object> result = new LinkedHashMap<>();
-
-            map.forEach((k, v) -> result.put(
-                    serializeValue(k.getClass(), k),
-                    serializeValue(v.getClass(), v)
-            ));
-
-            return result;
+        if(serializer instanceof ObjectSerializer<?> objectSerializer) {
+            value = this.serialize(objectSerializer, value);
         }
 
-        if (value instanceof Collection<?>) {
-            final Collection<?> collection = (Collection<?>) value;
-            final Collection<Object> result = value instanceof List ? new ArrayList<>() : new LinkedHashSet<>();
+        if(serializer instanceof ValueSerializer<?> valueSerializer) {
+            value = this.serializeValue(valueSerializer, value);
+        }
 
-            collection.forEach(item -> result.add(serializeValue(item.getClass(), item)));
+        if(value instanceof Map<?,?> map) {
+            final Map<Object, Object> finalMap = new LinkedHashMap<>();
 
-            return result;
+            for(final Map.Entry<?, ?> entry : map.entrySet()) {
+                final Object k = entry.getKey();
+                final Object v = entry.getValue();
+
+                finalMap.put(
+                        this.process(k.getClass(), k),
+                        this.process(v.getClass(), v)
+                );
+            }
+
+            return finalMap;
+        }
+
+        if(value instanceof Collection<?> collection) {
+            final Collection<Object> finalCollection = this.createEmptyCollection(collection);
+
+            for (final Object element : collection) {
+                finalCollection.add(this.process(element.getClass(), element));
+            }
+
+            return finalCollection;
         }
 
         return value;
     }
 
-    private Object deserializeValue(Class<?> type, Object value) {
-        final ConfigSerializer<?> serializer = getSerializer(type);
+    public Object processExisting(final String path, final Object value) {
+        final Class<?> type = this.typeCache.getType(path);
 
-        if (value instanceof ConfigurationSection) {
-            final ConfigurationSection section = (ConfigurationSection) value;
-            final Map<String, Object> rawValues = section.getValues(false);
-            final Map<Object, Object> result = new LinkedHashMap<>();
-
-            rawValues.forEach((fieldName, rawValue) -> {
-                final Class<?> fieldType = ConfigReflectionUtil.resolveFieldType(type, fieldName);
-                final Type genericType = ConfigReflectionUtil.resolveGenericType(type, fieldName);
-
-                Object processedValue = deserializeValue(fieldType, rawValue);
-
-                final ConfigSerializer<?> fieldSerializer = getSerializer(fieldType);
-
-                if (processedValue instanceof Map) {
-                    final Map<?, ?> mapVal = (Map<?, ?>) processedValue;
-
-                    if (fieldSerializer != null) {
-                        processedValue = deserialize(fieldSerializer, fieldType, mapVal);
-                    }
-                }
-
-                if (processedValue instanceof Collection) {
-                    final Collection<?> colVal = (Collection<?>) processedValue;
-
-                    if (genericType != null) {
-                        final Class<?> elementType = ConfigReflectionUtil.extractGenericClass(genericType);
-                        final Collection<Object> newCollection = createEmptyCollection(colVal);
-
-                        for (Object item : colVal) {
-                            newCollection.add(deserializeValue(elementType, item));
-                        }
-
-                        processedValue = newCollection;
-                    }
-                }
-
-                if(fieldType.isEnum()) {
-                    processedValue = ConfigParseUtil.parseEnum(type, processedValue);
-                }
-
-                result.put(fieldName, processedValue);
-            });
-
-            return serializer != null
-                    ? this.deserialize(serializer, type, result)
-                    : result;
+        if(type.isEnum()) {
+            return ConfigParseUtil.parseEnum(type, value);
         }
 
-        if (value instanceof Collection<?>) {
-            final Collection<?> collection = (Collection<?>) value;
-            final Collection<Object> result = createEmptyCollection(collection);
+        final Serializer<?> serializer = this.findSerializer(type);
 
-            collection.forEach(item -> result.add(deserializeValue(item.getClass(), item)));
-
-            return result;
+        if(value instanceof ConfigurationSection section && serializer instanceof ObjectSerializer<?> objectSerializer) {
+            return this.deserialize(path, objectSerializer, section.getValues(false));
         }
 
-        if(type.isEnum()) return ConfigParseUtil.parseEnum(type, value);
+        if(value instanceof Map<?, ?> map) {
+            final Map<Object, Object> finalMap = new LinkedHashMap<>();
 
-        return serializer != null
-                ? this.deserialize(serializer, type, value)
-                : value;
+            for(final Map.Entry<?, ?> entry : map.entrySet()) {
+                finalMap.put(
+                        this.processExisting(path + ".key", entry.getKey()),
+                        this.processExisting(path + ".value", entry.getValue())
+                );
+            }
+
+            return finalMap;
+        }
+
+        if(value instanceof Collection<?> collection) {
+            final Collection<Object> finalCollection = this.createEmptyCollection(collection);
+
+            int i = 0;
+            for (Object item : collection) {
+                finalCollection.add(this.processExisting(path + "[" + i++ + "]", item));
+            }
+
+            return finalCollection;
+        }
+
+        if(serializer instanceof ValueSerializer<?> valueSerializer) return valueSerializer.deserialize(value);
+
+        return value;
     }
 
-    private Collection<Object> createEmptyCollection(Collection<?> base) {
-        return base instanceof List ? new ArrayList<>() : new LinkedHashSet<>();
-    }
-
-    private ConfigSerializer<?> getSerializer(Class<?> type) {
+    private Serializer<?> findSerializer(final Class<?> type) {
         return this.serializers.get(type);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Object serialize(ConfigSerializer<T> serializer, Object value) {
-        return serializer.serialize((T) value);
+    private <T> Object serialize(final ObjectSerializer<T> serializer, final Object value) {
+        final SerializationData serializationData = new SerializationData(this);
+
+        serializer.serialize(serializationData, (T) value);
+
+        return serializationData.asMap();
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Object deserialize(ConfigSerializer<T> serializer, Class<?> type, Object value) {
-        return serializer.deserialize((Class<T>) type, value);
+    private <T> Object serializeValue(final ValueSerializer<T> serializer, final Object value) {
+        return serializer.serialize((T) value);
+    }
+
+    private Object deserialize(final String path, final ObjectSerializer<?> serializer, final Map<String, Object> values) {
+        return serializer.deserialize(new SerializedData(this, values, path));
+    }
+
+    private Collection<Object> createEmptyCollection(final Collection<?> collection) {
+        return collection instanceof List
+                ? new ArrayList<>()
+                : new LinkedHashSet<>();
     }
 }
