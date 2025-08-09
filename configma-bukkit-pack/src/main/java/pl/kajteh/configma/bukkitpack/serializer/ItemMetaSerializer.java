@@ -28,17 +28,17 @@ public class ItemMetaSerializer implements ObjectSerializer<ItemMeta> {
 
         if(meta == null) throw new IllegalStateException("Cannot create an empty ItemMeta");
 
-        if(data.has("display-name")) meta.setDisplayName(data.get("display-name"));
-        if(data.has("lore")) meta.setLore(data.get("lore"));
+        if(data.has("display-name")) meta.setDisplayName(data.get("display-name", String.class));
+        if(data.has("lore")) meta.setLore(data.getAsList("lore", String.class));
 
         if(data.has("flags")) {
-            final Set<ItemFlag> itemFlags = data.get("flags");
+            final Set<ItemFlag> itemFlags = data.getAsSet("flags", ItemFlag.class);
             itemFlags.forEach(meta::addItemFlags);
         }
 
-        if(data.has("custom-model-data")) meta.setCustomModelData(data.get("custom-model-data"));
+        if(data.has("custom-model-data")) meta.setCustomModelData(data.get("custom-model-data", Integer.class));
         if(data.has("unbreakable")) meta.setUnbreakable(true);
-        if(data.has("localized-name")) meta.setLocalizedName(data.get("localized-name"));
+        if(data.has("localized-name")) meta.setLocalizedName(data.get("localized-name", String.class));
 
         return meta;
     }

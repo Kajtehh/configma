@@ -15,7 +15,7 @@ public final class ConfigProvider<T> {
     private final YamlConfiguration configuration;
     private final ConfigMapper configMapper;
 
-    ConfigProvider(T instance, File file, List<Serializer<?>> serializers, List<ConfigExtension> extensions) {
+    ConfigProvider(final T instance, final File file, final List<Serializer<?>> serializers, final List<ConfigExtension> extensions) {
         this.instance = instance;
         this.file = file;
 

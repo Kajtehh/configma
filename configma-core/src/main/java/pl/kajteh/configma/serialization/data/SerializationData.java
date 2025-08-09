@@ -15,7 +15,11 @@ public class SerializationData {
     }
 
     public <T> void add(String key, T value) {
-        this.values.put(key, this.processor.process(value.getClass(), value));
+        this.add(key, value, value.getClass());
+    }
+
+    public <T> void add(String key, T value, Class<?> type) {
+        this.values.put(key, this.processor.process(type, value));
     }
 
     public Map<String, Object> asMap() {

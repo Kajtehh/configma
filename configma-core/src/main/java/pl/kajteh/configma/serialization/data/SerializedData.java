@@ -8,37 +8,45 @@ public class SerializedData {
 
     private final ConfigProcessor processor;
     private final Map<String, Object> values;
-    private final String path;
 
-    public SerializedData(ConfigProcessor processor, Map<String, Object> values, String path) {
+    public SerializedData(ConfigProcessor processor, Map<String, Object> values) {
         this.processor = processor;
         this.values = values;
-        this.path = path;
     }
 
     public Object getRaw(String key) {
-        return this.values.get(key);
+        return values.get(key);
     }
-
-    @SuppressWarnings("unchecked")
-    public <T> T get(String key) {
-        final Object rawValue = this.getRaw(key);
-
-        return (T) this.processor.processExisting(this.path + ".key", rawValue);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T get(String key, T defaultValue) {
-        final Object rawValue = this.getRaw(key);
-
-        if (rawValue == null) return defaultValue;
-
-        return (T) this.processor.processExisting(this.path + ".key", rawValue);
-    }
-
-    // zrob metode get as collection itp i tam dodaj parametr zeby podac typ i musisz w processor zrobic taka funkcje do kolekcji i map gdzie bedzie taki param
 
     public boolean has(String key) {
-        return this.values.containsKey(key);
+        return values.containsKey(key);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T getProcessed(String key, Class<?> mainType, Class<?>... genericTypes) {
+        final Object rawValue = getRaw(key);
+
+        return (T) processor.processExisting(mainType, rawValue, List.of(genericTypes));
+    }
+
+    public <T> T get(String key, Class<T> type) {
+        return this.getProcessed(key, type);
+    }
+
+    public <T> Collection<T> getAsCollection(String key, Class<T> elementType) {
+        return this.getProcessed(key, Collection.class, elementType);
+    }
+
+    public <T> List<T> getAsList(String key, Class<T> elementType) {
+        return this.getProcessed(key, Collection.class, elementType);
+    }
+
+    public <T> Set<T> getAsSet(String key, Class<T> elementType) {
+        return this.getProcessed(key, Collection.class, elementType);
+    }
+
+    public <K, V> Map<K, V> getAsMap(String key, Class<K> keyType, Class<V> valueType) {
+        return this.getProcessed(key, Map.class, keyType, valueType);
     }
 }
+

@@ -6,7 +6,6 @@ import pl.kajteh.configma.serialization.serializer.Serializer;
 import pl.kajteh.configma.serialization.serializer.ValueSerializer;
 import pl.kajteh.configma.serialization.data.SerializationData;
 import pl.kajteh.configma.serialization.data.SerializedData;
-import pl.kajteh.configma.type.ConfigTypeCache;
 import pl.kajteh.configma.util.ConfigParseUtil;
 
 import java.util.*;
@@ -15,13 +14,7 @@ public final class ConfigProcessor {
 
     private final Map<Class<?>, Serializer<?>> serializers = new HashMap<>();
 
-    private final ConfigTypeCache typeCache;
-
-    // todo add automatic serializer based on reflection
-
-    ConfigProcessor(ConfigTypeCache typeCache, List<Serializer<?>> serializers) {
-        this.typeCache = typeCache;
-
+    ConfigProcessor(final List<Serializer<?>> serializers) {
         serializers.forEach(serializer ->
                 this.serializers.put(serializer.getType(), serializer));
     }
@@ -32,7 +25,7 @@ public final class ConfigProcessor {
         final Serializer<?> serializer = this.findSerializer(type);
 
         if(serializer instanceof ObjectSerializer<?> objectSerializer) {
-            value = this.serialize(objectSerializer, value);
+            value = this.serialize(objectSerializer, value).asMap();
         }
 
         if(serializer instanceof ValueSerializer<?> valueSerializer) {
@@ -68,41 +61,50 @@ public final class ConfigProcessor {
         return value;
     }
 
-    public Object processExisting(final String path, final Object value) {
-        final Class<?> type = this.typeCache.getType(path);
+    public Object processExisting(final Class<?> type, final Object value) {
+        return this.processExisting(type, value, null);
+    }
 
+    public Object processExisting(final Class<?> type, final Object value, final List<Class<?>> genericTypes) {
         if(type.isEnum()) {
             return ConfigParseUtil.parseEnum(type, value);
         }
 
         final Serializer<?> serializer = this.findSerializer(type);
 
-        if(value instanceof ConfigurationSection section && serializer instanceof ObjectSerializer<?> objectSerializer) {
-            return this.deserialize(path, objectSerializer, section.getValues(false));
-        }
+        if(value instanceof ConfigurationSection section) {
+            final Map<String, Object> values = section.getValues(false);
 
-        if(value instanceof Map<?, ?> map) {
-            final Map<Object, Object> finalMap = new LinkedHashMap<>();
-
-            for(final Map.Entry<?, ?> entry : map.entrySet()) {
-                finalMap.put(
-                        this.processExisting(path + ".key", entry.getKey()),
-                        this.processExisting(path + ".value", entry.getValue())
-                );
+            if(serializer instanceof ObjectSerializer<?> objectSerializer) {
+                return this.deserialize(objectSerializer, values);
             }
 
-            return finalMap;
+            return this.processExisting(type, values, genericTypes);
         }
 
-        if(value instanceof Collection<?> collection) {
-            final Collection<Object> finalCollection = this.createEmptyCollection(collection);
+        if(genericTypes != null && !genericTypes.isEmpty()) {
+            if (value instanceof Map<?, ?> map) {
+                final Map<Object, Object> finalMap = new LinkedHashMap<>();
 
-            int i = 0;
-            for (Object item : collection) {
-                finalCollection.add(this.processExisting(path + "[" + i++ + "]", item));
+                for (final Map.Entry<?, ?> entry : map.entrySet()) {
+                    finalMap.put(
+                            this.processExisting(genericTypes.get(0), entry.getKey()),
+                            this.processExisting(genericTypes.get(1), entry.getValue())
+                    );
+                }
+
+                return finalMap;
             }
 
-            return finalCollection;
+            if (value instanceof Collection<?> collection) {
+                final Collection<Object> finalCollection = this.createEmptyCollection(collection);
+
+                for (Object item : collection) {
+                    finalCollection.add(this.processExisting(genericTypes.get(0), item));
+                }
+
+                return finalCollection;
+            }
         }
 
         if(serializer instanceof ValueSerializer<?> valueSerializer) return valueSerializer.deserialize(value);
@@ -115,12 +117,12 @@ public final class ConfigProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Object serialize(final ObjectSerializer<T> serializer, final Object value) {
+    private <T> SerializationData serialize(final ObjectSerializer<T> serializer, final Object value) {
         final SerializationData serializationData = new SerializationData(this);
 
         serializer.serialize(serializationData, (T) value);
 
-        return serializationData.asMap();
+        return serializationData;
     }
 
     @SuppressWarnings("unchecked")
@@ -128,8 +130,8 @@ public final class ConfigProcessor {
         return serializer.serialize((T) value);
     }
 
-    private Object deserialize(final String path, final ObjectSerializer<?> serializer, final Map<String, Object> values) {
-        return serializer.deserialize(new SerializedData(this, values, path));
+    private Object deserialize(final ObjectSerializer<?> serializer, final Map<String, Object> values) {
+        return serializer.deserialize(new SerializedData(this, values));
     }
 
     private Collection<Object> createEmptyCollection(final Collection<?> collection) {

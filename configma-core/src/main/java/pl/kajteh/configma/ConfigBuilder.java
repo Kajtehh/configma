@@ -21,41 +21,41 @@ public final class ConfigBuilder<T> {
     private T instance;
     private File file;
 
-    ConfigBuilder(JavaPlugin plugin, Class<T> clazz) {
+    ConfigBuilder(final JavaPlugin plugin, final Class<T> clazz) {
         this.plugin = plugin;
         this.clazz = clazz;
 
         this.serializers.addAll(List.of(new InstantSerializer(), new UUIDSerializer()));
     }
 
-    public ConfigBuilder<T> file(File file) {
+    public ConfigBuilder<T> file(final File file) {
         this.file = file;
         return this;
     }
 
-    public ConfigBuilder<T> file(String name) {
+    public ConfigBuilder<T> file(final String name) {
         this.file = new File(this.plugin.getDataFolder(), name);
         return this;
     }
 
-    public ConfigBuilder<T> instance(T instance) {
+    public ConfigBuilder<T> instance(final T instance) {
         this.instance = instance;
         return this;
     }
 
-    public ConfigBuilder<T> serializers(Serializer<?>... serializers) {
+    public ConfigBuilder<T> serializers(final Serializer<?>... serializers) {
         this.serializers.addAll(List.of(serializers));
         return this;
     }
 
-    public ConfigBuilder<T> serializerPacks(SerializerPack... packs) {
+    public ConfigBuilder<T> serializerPacks(final SerializerPack... packs) {
         for (SerializerPack pack : packs) {
             this.serializers.addAll(pack.getSerializers());
         }
         return this;
     }
 
-    public ConfigBuilder<T> extensions(ConfigExtension... extensions) {
+    public ConfigBuilder<T> extensions(final ConfigExtension... extensions) {
         this.extensions.addAll(List.of(extensions));
         return this;
     }
