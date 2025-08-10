@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ConfigFieldCache {
+public final class ConfigFieldCache {
 
     private final ConcurrentHashMap<Class<?>, List<Field>> cache = new ConcurrentHashMap<>();
 

@@ -11,7 +11,7 @@ import pl.kajteh.configma.serialization.serializer.Serializer;
 import java.lang.reflect.Field;
 import java.util.List;
 
-public class ConfigMapper {
+public final class ConfigMapper {
 
     private final YamlConfiguration configuration;
     private final List<ConfigExtension> extensions;
@@ -47,7 +47,7 @@ public class ConfigMapper {
             final boolean ignoreSerialization = field.isAnnotationPresent(IgnoreSerialization.class);
 
             if (toConfig) {
-                final Object finalValue = ignoreSerialization ? value : processor.process(field.getType(), value); // todo tutaj blad
+                final Object finalValue = ignoreSerialization ? value : processor.process(field.getType(), value);
 
                 this.configuration.set(path, finalValue);
                 this.callExtensions(field.getDeclaringClass(), path, field, finalValue);

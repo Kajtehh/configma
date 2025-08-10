@@ -16,30 +16,30 @@ public final class Config<T> {
     }
 
     public void reload() throws ConfigException {
-        configProvider.reload();
+        this.configProvider.reload();
     }
 
     public void save() throws ConfigException {
-        configProvider.save(true);
+        this.configProvider.save(true);
     }
 
     public Config<T> edit(final Consumer<T> consumer) throws ConfigException {
-        reload();
-        consumer.accept(get());
+        this.reload();
+        consumer.accept(this.get());
         return this;
     }
 
     public Config<T> get(final Consumer<T> consumer) {
-        consumer.accept(get());
+        consumer.accept(this.get());
         return this;
     }
 
     public T get() {
-        return configProvider.getInstance();
+        return this.configProvider.getInstance();
     }
 
     public <R> R map(final Function<T, R> mapper) {
-        return mapper.apply(get());
+        return mapper.apply(this.get());
     }
 
     public static <T> ConfigBuilder<T> builder(final JavaPlugin plugin, final Class<T> clazz) {

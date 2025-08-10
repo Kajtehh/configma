@@ -99,7 +99,7 @@ public final class ConfigProcessor {
             if (value instanceof Collection<?> collection) {
                 final Collection<Object> finalCollection = this.createEmptyCollection(collection);
 
-                for (Object item : collection) {
+                for (final Object item : collection) {
                     finalCollection.add(this.processExisting(genericTypes.get(0), item));
                 }
 
