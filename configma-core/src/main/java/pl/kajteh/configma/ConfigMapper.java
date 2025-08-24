@@ -27,7 +27,7 @@ public abstract class ConfigMapper {
         }
     }
 
-    private void syncField(final Field field, final Object instance, boolean writeMode) throws ConfigException {
+    private void syncField(final Field field, final Object instance, final boolean writeMode) throws ConfigException {
         try {
             final Object currentValue = field.get(instance);
 
