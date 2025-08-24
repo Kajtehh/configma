@@ -1,0 +1,4 @@
+name: test
+version: '1.0-SNAPSHOT'
+main: pl.kajteh.test.TestPlugin
+api-version: '1.18'

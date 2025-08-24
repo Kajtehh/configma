@@ -1,80 +1,51 @@
 package pl.kajteh.configma;
 
-import org.bukkit.plugin.java.JavaPlugin;
-import pl.kajteh.configma.exception.ConfigException;
 import pl.kajteh.configma.serialization.serializer.Serializer;
-import pl.kajteh.configma.serialization.serializer.SerializerPack;
-import pl.kajteh.configma.serialization.serializer.impl.InstantSerializer;
-import pl.kajteh.configma.serialization.serializer.impl.UUIDSerializer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public final class ConfigBuilder<T> {
-    private final JavaPlugin plugin;
-    private final Class<T> clazz;
+public abstract class ConfigBuilder<T> {
+    private final T instance;
+    private final List<Serializer> serializers = new ArrayList<>();
 
-    private final List<ConfigExtension> extensions = new ArrayList<>();
-    private final List<Serializer<?>> serializers = new ArrayList<>();
+    private File configFile;
 
-    private T instance;
-    private File file;
-
-    ConfigBuilder(final JavaPlugin plugin, final Class<T> clazz) {
-        this.plugin = plugin;
-        this.clazz = clazz;
-
-        this.serializers.addAll(List.of(new InstantSerializer(), new UUIDSerializer()));
-    }
-
-    public ConfigBuilder<T> file(final File file) {
-        this.file = file;
-        return this;
-    }
-
-    public ConfigBuilder<T> file(final String name) {
-        this.file = new File(this.plugin.getDataFolder(), name);
-        return this;
-    }
-
-    public ConfigBuilder<T> instance(final T instance) {
+    protected ConfigBuilder(final T instance) {
         this.instance = instance;
-        return this;
     }
 
-    public ConfigBuilder<T> serializers(final Serializer<?>... serializers) {
-        this.serializers.addAll(List.of(serializers));
-        return this;
-    }
-
-    public ConfigBuilder<T> serializerPacks(final SerializerPack... packs) {
-        for (SerializerPack pack : packs) {
-            this.serializers.addAll(pack.getSerializers());
+    protected ConfigBuilder(final Class<T> configClass) {
+        final T instance;
+        try {
+            instance = configClass.getDeclaredConstructor().newInstance();
+        } catch (final Exception e) {
+            throw new ConfigException("Failed to instantiate config class " + configClass.getName(), e);
         }
+
+        this.instance = instance;
+    }
+
+    public ConfigBuilder<T> file(final File configFile) {
+        this.configFile = configFile;
         return this;
     }
 
-    public ConfigBuilder<T> extensions(final ConfigExtension... extensions) {
-        this.extensions.addAll(List.of(extensions));
+    public ConfigBuilder<T> serializers(final Serializer... serializers) {
+        this.serializers.addAll(Arrays.asList(serializers));
         return this;
     }
 
-    public Config<T> build() {
-        if(this.file == null) {
+    protected abstract ConfigProvider<T> createProvider(final T instance, final File configFile, final List<Serializer> serializers);
+
+    public Config<T> load() {
+        if (this.configFile == null) {
             throw new ConfigException("Config file cannot be null");
         }
 
-        if(this.instance == null) {
-            try {
-                this.instance = this.clazz.getDeclaredConstructor().newInstance();
-            } catch (Exception e) {
-                throw new ConfigException("Failed to instantiate config class " + this.clazz.getName(), e);
-            }
-        }
-
-        final ConfigProvider<T> configProvider = new ConfigProvider<>(this.instance, this.file, this.serializers, this.extensions);
-
-        return new Config<>(configProvider);
+        final ConfigProvider<T> provider = this.createProvider(this.instance, this.configFile, this.serializers);
+        return new Config<>(provider);
     }
 }
