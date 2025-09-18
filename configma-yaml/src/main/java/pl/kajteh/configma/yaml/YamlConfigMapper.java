@@ -23,6 +23,7 @@ public final class YamlConfigMapper extends ConfigMapper {
         try (final InputStream inputStream = new FileInputStream(file)) {
             this.values = this.yaml.load(inputStream);
 
+            // todo: just edit function to return Map<String, Object>
             if(this.values == null) this.values = new LinkedHashMap<>();
         } catch (final IOException e) {
             throw new ConfigException(e);
