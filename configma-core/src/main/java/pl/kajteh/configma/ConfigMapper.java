@@ -60,6 +60,6 @@ public abstract class ConfigMapper {
                 .toList();
     }
 
-    protected abstract void load(final File file);
+    protected abstract Map<String, Object> load(final File file);
     protected abstract void write(final File file);
 }
