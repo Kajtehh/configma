@@ -10,5 +10,18 @@
         <version>1.0.6-SNAPSHOT</version>
     </parent>
 
-    <artifactId>configma-core</artifactId>
+    <artifactId>configma-json</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>dev.kajteh</groupId>
+            <artifactId>configma-core</artifactId>
+            <version>1.0.6-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.13.2</version>
+        </dependency>
+    </dependencies>
 </project>

@@ -5,23 +5,23 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>pl.kajteh</groupId>
+        <groupId>dev.kajteh</groupId>
         <artifactId>configma</artifactId>
-        <version>1.0.5-SNAPSHOT</version>
+        <version>1.0.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>configma-yaml</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>pl.kajteh</groupId>
+            <groupId>dev.kajteh</groupId>
             <artifactId>configma-core</artifactId>
-            <version>1.0.5-SNAPSHOT</version>
+            <version>1.0.6-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>2.4</version>
+            <version>2.5</version>
         </dependency>
     </dependencies>
 </project>
