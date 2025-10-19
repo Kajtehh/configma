@@ -142,7 +142,8 @@ public class UserSerializer implements ObjectSerializer<User> {
     public void serialize(SerializationContext context, User user) {
         context.set("id", user.id());
         context.set("name", user.name());
-        context.set("tasks", user.tasks(), new TypeReference<List<Task>>() {}.getType()); // Needed to tell the serializer the element type due to Java's type erasure
+        context.set("tasks", user.tasks(), new TypeReference<List<Task>>() {}.getType());
+        // Type needed to tell the serializer the element type due to Java's type erasure
     }
 
     @Override
@@ -150,7 +151,8 @@ public class UserSerializer implements ObjectSerializer<User> {
         return new User(
                 context.get("id", UUID.class),
                 context.get("name", String.class),
-                context.get("tasks", new TypeReference<List<Task>>() {}.getType()) // Needed so deserializer knows it's a List of Task, not a raw List
+                context.get("tasks", new TypeReference<List<Task>>() {}.getType())
+                // Type needed so deserializer knows it's a List of Task, not a raw List
         );
     }
 
