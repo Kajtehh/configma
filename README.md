@@ -105,14 +105,14 @@ config.reload(); // load values from file into memory
 public class UserSerializer implements ObjectSerializer<User> {
 
     @Override
-    public void serialize(SerializationContext context, User user) {
+    public void serialize(final SerializationContext context, final User user) {
         context.set("uuid", user.uuid);
         context.set("name", user.name);
         context.set("properties", user.properties);
     }
 
     @Override
-    public User deserialize(DeserializationContext context) {
+    public User deserialize(final DeserializationContext context) {
         return new User(
                 context.get("uuid", UUID.class),
                 context.get("name", String.class),
