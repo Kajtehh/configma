@@ -49,20 +49,35 @@ Then add the parser for the format you want:
 ```
 
 ## 2. Define Your Configuration
-Define a configuration class (`AppConfig`). The nested models like `User` can be a class or a record — the details are up to you.
+Define a configuration class (`AppConfig`).
 
 ### Create a configuration object
 ```java
+public record Task(String description, boolean completed) {}
+```
+```java
+public record User(UUID id, String name, List<Task> tasks) {}
+```
+```java
 public class AppConfig {
-
-    // 'User' is a nested object (class or record)
-    public User user = new User(
-            UUID.randomUUID(),
-            "Kajteh",
-            Map.of(
-                    "level", 123,
-                    "theme", "dark",
-                    "notifications", true
+    
+    public List<User> users = List.of(
+            new User(
+                    UUID.randomUUID(),
+                    "Kajteh",
+                    List.of(
+                            new Task("Code Configma", true),
+                            new Task("Finish docs", false),
+                            new Task("Learn for maths", false),
+                            new Task("Go to sleep", false)
+                    )
+            ),
+            new User(
+                    UUID.randomUUID(),
+                    "Another User",
+                    List.of(
+                            new Task("Complete tutorial", true)
+                    )
             )
     );
 
@@ -75,25 +90,21 @@ public class AppConfig {
 final var config = ConfigFactory.builder(AppConfig.class)
         .file(new File("config.yml"))
         .parser(new YamlConfigParser()) // or JsonConfigParser
-        .serializer(new UserSerializer()) // optional, only for custom serializers
+        .serializer(new TaskSerializer(), new UserSerializer()) // optional, only for custom serializers
         .initialize();
 ```
 Access configuration values:
 ```java
-final var user = config.get().user;
+final var users = config.get().users;
+users.forEach(user -> System.out.println(user.name()));
 
 // or use lambda
-config.get(appConfig -> { 
-    final var testValue = appConfig.test;
-});
+config.get(cfg -> System.out.println("Test: " + cfg.test));
 ```
 
 ### Editing and Saving Configuration
 ```java
-config.edit(appConfig -> {
-    appConfig.user = new User(UUID.randomUUID(), "Another User", Map.of("level", 22));
-    appConfig.test = false;
-});
+config.edit(cfg -> cfg.test = false);
 
 config.save();   // persist current config to file
 config.reload(); // load values from file into memory
@@ -102,21 +113,44 @@ config.reload(); // load values from file into memory
 ### Creating a custom Serializer
 **Object Serializer** – used for serializing/deserializing complex objects like User. Handles mapping between fields in your object and the file format:
 ```java
-public class UserSerializer implements ObjectSerializer<User> {
+public class TaskSerializer implements ObjectSerializer<Task> {
 
     @Override
-    public void serialize(final SerializationContext context, final User user) {
-        context.set("uuid", user.uuid);
-        context.set("name", user.name);
-        context.set("properties", user.properties);
+    public void serialize(SerializationContext context, Task task) {
+        context.set("description", task.description());
+        context.set("completed", task.completed());
     }
 
     @Override
-    public User deserialize(final DeserializationContext context) {
+    public Task deserialize(DeserializationContext context) {
+        return new Task(
+                context.get("description", String.class),
+                context.get("completed", Boolean.class)
+        );
+    }
+
+    @Override
+    public boolean matches(Class<?> type) {
+        return Task.class.isAssignableFrom(type);
+    }
+}
+```
+```java
+public class UserSerializer implements ObjectSerializer<User> {
+
+    @Override
+    public void serialize(SerializationContext context, User user) {
+        context.set("id", user.id());
+        context.set("name", user.name());
+        context.set("tasks", user.tasks(), new TypeReference<List<Task>>() {}.getType()); // Needed to tell the serializer the element type due to Java's type erasure
+    }
+
+    @Override
+    public User deserialize(DeserializationContext context) {
         return new User(
-                context.get("uuid", UUID.class),
+                context.get("id", UUID.class),
                 context.get("name", String.class),
-                context.get("properties", new TypeReference<Map<String, Object>>() {}.getType())
+                context.get("tasks", new TypeReference<List<Task>>() {}.getType()) // Needed so deserializer knows it's a List of Task, not a raw List
         );
     }
 
@@ -131,12 +165,12 @@ public class UserSerializer implements ObjectSerializer<User> {
 public class YesNoBooleanSerializer implements ValueSerializer<Boolean> {
 
     @Override
-    public Object serialize(final Boolean value) {
+    public Object serialize(Boolean value) {
         return value ? "yes" : "no"; // true -> "yes", false -> "no"
     }
 
     @Override
-    public Boolean deserialize(final Object raw) {
+    public Boolean deserialize(Object raw) {
         final String string = raw.toString().toLowerCase();
         
         return switch (string) {
@@ -147,7 +181,7 @@ public class YesNoBooleanSerializer implements ValueSerializer<Boolean> {
     }
 
     @Override
-    public boolean matches(final Class<?> type) {
+    public boolean matches(Class<?> type) {
         return Boolean.class.isAssignableFrom(type) || type == boolean.class;
     }
 }
@@ -156,32 +190,46 @@ public class YesNoBooleanSerializer implements ValueSerializer<Boolean> {
 ### Example configuration output
 **YAML**
 ```yml
-user:
-  uuid: "5f5a65bd-9b2e-49e6-a6a0-6cbcd49d2ace"
-  name: "Kajteh"
-  properties:
-    level: 123
-    theme: "dark"
-    notifications: true
-test: "yes"
+users:
+  - id: "cf59356d-5860-4757-898c-48b6a0425794"
+    name: "Kajteh"
+    tasks:
+      - description: "Code Configma"
+        completed: true
+      - description: "Finish docs"
+        completed: false
+      - description: "Learn for maths"
+        completed: false
+      - description: "Go to sleep"
+        completed: false
+  - id: "961fa571-3d0f-41b5-8958-397e93adbc0b"
+    name: "Another User"
+    tasks:
+      - description: "Complete tutorial"
+        completed: true
 ```
-- `user` – nested object serialized with `UserSerializer`.
-- `test` – boolean serialized with `YesNoBooleanSerializer` (`true` → `yes`).
 
 **JSON**
 ```json
 {
-  "user": {
-    "uuid": "123e4567-e89b-12d3-a456-426614174000",
-    "name": "Kajteh",
-    "properties": {
-      "level": 123,
-      "theme": "dark",
-      "notifications": true
+  "users": [
+    {
+      "id": "cf59356d-5860-4757-898c-48b6a0425794",
+      "name": "Kajteh",
+      "tasks": [
+        { "description": "Code Configma", "completed": true },
+        { "description": "Finish docs", "completed": false },
+        { "description": "Learn for maths", "completed": false },
+        { "description": "Go to sleep", "completed": false }
+      ]
+    },
+    {
+      "id": "961fa571-3d0f-41b5-8958-397e93adbc0b",
+      "name": "Another User",
+      "tasks": [
+        { "description": "Complete tutorial", "completed": true }
+      ]
     }
-  },
-  "test": "yes"
+  ]
 }
 ```
-- JSON mirrors the same structure as YAML.
-- Nested objects and logical value serializers are applied automatically.
