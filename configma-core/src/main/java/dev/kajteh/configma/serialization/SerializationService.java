@@ -4,6 +4,7 @@ import dev.kajteh.configma.serialization.serializer.ObjectSerializer;
 import dev.kajteh.configma.serialization.serializer.Serializer;
 import dev.kajteh.configma.serialization.serializer.ValueSerializer;
 
+import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -17,11 +18,9 @@ public final class SerializationService {
     }
 
     public <T> Object serializeValue(final T value, final Type type) {
-        if (value == null) return null;
-        if (value instanceof Enum<?> e) return e.name();
+        if(value == null) return null;
 
-        final Class<?> rawType = getRawType(type);
-        final Serializer<T> serializer = findSerializer(rawType);
+        final Serializer<T> serializer = this.findSerializer(getRawType(type));
 
         if (serializer instanceof ValueSerializer<T> valueSerializer)
             return valueSerializer.serialize(value);
@@ -32,15 +31,17 @@ public final class SerializationService {
             return context.values();
         }
 
-        if (value instanceof Collection<?> collection) {
-            return serializeCollection(collection, getTypeArgument(type, 0));
-        }
+        return switch (value) {
+            case final Enum<?> e -> e.name();
 
-        if (value instanceof Map<?, ?> map) {
-            return serializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
-        }
+            case final Collection<?> collection -> this.serializeCollection(collection, getTypeArgument(type, 0));
 
-        return value;
+            case final Map<?, ?> map -> this.serializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
+
+            case final Serializable serializable -> value; // TODO
+
+            default -> value;
+        };
     }
 
     @SuppressWarnings("unchecked")
@@ -52,7 +53,7 @@ public final class SerializationService {
         if (rawType.isEnum() && raw instanceof String s)
             return (T) Enum.valueOf(rawType.asSubclass(Enum.class), s);
 
-        final Serializer<T> serializer = findSerializer(rawType);
+        final Serializer<T> serializer = this.findSerializer(rawType);
 
         if (serializer instanceof ValueSerializer<T> valueSerializer)
             return valueSerializer.deserialize(raw);
@@ -63,13 +64,13 @@ public final class SerializationService {
         }
 
         return switch (raw) {
-            case Collection<?> collection when Collection.class.isAssignableFrom(rawType) ->
-                    (T) deserializeCollection(collection, getTypeArgument(type, 0), rawType);
+            case final Collection<?> collection when Collection.class.isAssignableFrom(rawType) ->
+                    (T) this.deserializeCollection(collection, getTypeArgument(type, 0), rawType);
 
-            case Map<?, ?> map when Map.class.isAssignableFrom(rawType) ->
-                    (T) deserializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
+            case final Map<?, ?> map when Map.class.isAssignableFrom(rawType) ->
+                    (T) this.deserializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
 
-            case Number number -> (T) convertNumber(number, rawType);
+            case final Number number -> (T) convertNumber(number, rawType);
 
             default -> (T) raw;
         };
@@ -106,7 +107,8 @@ public final class SerializationService {
 
     private Map<Object, Object> serializeMap(final Map<?, ?> map, final Type keyType, final Type valueType) {
         final Map<Object, Object> result = new LinkedHashMap<>();
-        for (var entry : map.entrySet()) {
+
+        for (final var entry : map.entrySet()) {
             result.put(
                     this.serializeValue(entry.getKey(), keyType),
                     this.serializeValue(entry.getValue(), valueType)
@@ -118,7 +120,7 @@ public final class SerializationService {
 
     private Collection<Object> deserializeCollection(final Collection<?> collection, final Type elementType, final Class<?> rawType) {
         final Collection<Object> result = List.class.isAssignableFrom(rawType) ? new ArrayList<>() : new LinkedHashSet<>();
-        for (var element : collection) {
+        for (final var element : collection) {
             result.add(this.deserializeValue(element, elementType));
         }
 
@@ -127,7 +129,7 @@ public final class SerializationService {
 
     private Map<Object, Object> deserializeMap(final Map<?, ?> map, final Type keyType, final Type valueType) {
         final Map<Object, Object> result = new LinkedHashMap<>();
-        for (var entry : map.entrySet()) {
+        for (final var entry : map.entrySet()) {
             result.put(
                     this.deserializeValue(entry.getKey(), keyType),
                     this.deserializeValue(entry.getValue(), valueType)

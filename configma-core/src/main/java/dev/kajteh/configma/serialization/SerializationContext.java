@@ -1,5 +1,6 @@
 package dev.kajteh.configma.serialization;
 
+import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public class SerializationContext {
         this.set(key, value, value.getClass());
     }
 
-    public <T> void set(final String key, final T value, final Class<?> type) {
+    public <T> void set(final String key, final T value, final Type type) {
         this.values.put(key, this.serializationService.serializeValue(value, type));
     }
 

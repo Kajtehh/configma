@@ -20,4 +20,9 @@ public class DeserializationContext {
     public <T> T get(final String key, final Type type) {
         return this.serializationService.deserializeValue(this.values.get(key), type);
     }
+
+    public <T> T get(final String key, final Type type, final T defaultValue) {
+        final T value = this.get(key, type);
+        return value != null ? value : defaultValue;
+    }
 }
