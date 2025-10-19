@@ -14,11 +14,11 @@ public final class Config<T> {
     private final Class<T> type;
     private final T instance;
     private final File file;
-    private final ConfigAdapter adapter;
+    private final ConfigParser parser;
     private final SerializationService serializer;
 
     Config(
-            final ConfigAdapter adapter,
+            final ConfigParser adapter,
             final Class<T> type,
             final T instance,
             final File file,
@@ -27,13 +27,13 @@ public final class Config<T> {
         this.type = type;
         this.instance = instance;
         this.file = file;
-        this.adapter = adapter;
+        this.parser = adapter;
         this.serializer = new SerializationService(serializers);
     }
 
     void load(final boolean write) {
         try (final var reader = new FileReader(this.file)) {
-            final var loadedValues = Optional.ofNullable(this.adapter.load(reader))
+            final var loadedValues = Optional.ofNullable(this.parser.load(reader))
                     .orElseGet(LinkedHashMap::new);
 
             final Map<String, Object> valuesToWrite = new LinkedHashMap<>();
@@ -52,7 +52,7 @@ public final class Config<T> {
 
             if (write && !valuesToWrite.isEmpty()) {
                 try (final var writer = new FileWriter(this.file)) {
-                    this.adapter.write(writer, valuesToWrite);
+                    this.parser.write(writer, valuesToWrite);
                 }
             }
         } catch (final IOException | IllegalAccessException e) {
@@ -70,7 +70,7 @@ public final class Config<T> {
                 valuesToWrite.put(name, this.serializer.serializeValue(value, field.getGenericType()));
             }
 
-            this.adapter.write(writer, valuesToWrite);
+            this.parser.write(writer, valuesToWrite);
         } catch (final IOException | IllegalAccessException e) {
             throw new ConfigException(e);
         }
@@ -90,11 +90,10 @@ public final class Config<T> {
 
     public void edit(final Consumer<T> instanceConsumer) {
         instanceConsumer.accept(this.instance);
-        this.save();
     }
 
     private String formatFieldName(final String name) {
-        final var namingStyle = this.adapter.getNamingStyle();
+        final var namingStyle = this.parser.getNamingStyle();
         return namingStyle == null ? name : namingStyle.format(name);
     }
 

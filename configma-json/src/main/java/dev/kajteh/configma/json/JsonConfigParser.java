@@ -3,22 +3,22 @@ package dev.kajteh.configma.json;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import dev.kajteh.configma.ConfigAdapter;
+import dev.kajteh.configma.ConfigParser;
 import dev.kajteh.configma.ConfigNamingStyle;
 
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Map;
 
-public class JsonConfigAdapter implements ConfigAdapter {
+public class JsonConfigParser implements ConfigParser {
 
     private final Gson gson;
 
-    public JsonConfigAdapter(final Gson gson) {
+    public JsonConfigParser(final Gson gson) {
         this.gson = gson;
     }
 
-    public JsonConfigAdapter() {
+    public JsonConfigParser() {
         this(new GsonBuilder()
                 .setPrettyPrinting()
                 .create());

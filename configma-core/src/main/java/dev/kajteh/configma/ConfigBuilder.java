@@ -20,7 +20,7 @@ public final class ConfigBuilder<T> {
     private final T instance;
     private final List<Serializer<?>> customSerializers = new ArrayList<>();
 
-    private ConfigAdapter adapter;
+    private ConfigParser parser;
     private File file;
 
     public ConfigBuilder(final Class<T> type) {
@@ -37,8 +37,8 @@ public final class ConfigBuilder<T> {
         return this;
     }
 
-    public ConfigBuilder<T> adapter(final ConfigAdapter adapter) {
-        this.adapter = adapter;
+    public ConfigBuilder<T> parser(final ConfigParser parser) {
+        this.parser = parser;
         return this;
     }
 
@@ -57,7 +57,7 @@ public final class ConfigBuilder<T> {
         final var serializers = new ArrayList<>(COMMON_SERIALIZERS);
         serializers.addAll(this.customSerializers);
 
-        final var config = new Config<>(this.adapter, this.type, this.instance, this.file, serializers);
+        final var config = new Config<>(this.parser, this.type, this.instance, this.file, serializers);
         config.load(true);
 
         return config;
