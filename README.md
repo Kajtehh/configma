@@ -24,7 +24,7 @@ Add the core library
 <dependency>
     <groupId>dev.kajteh</groupId>
     <artifactId>configma-core</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.8-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -35,7 +35,7 @@ Then add the parser for the format you want:
 <dependency>
     <groupId>dev.kajteh</groupId>
     <artifactId>configma-yaml</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.8-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -44,7 +44,7 @@ Then add the parser for the format you want:
 <dependency>
     <groupId>dev.kajteh</groupId>
     <artifactId>configma-json</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.8-SNAPSHOT</version>
 </dependency>
 ```
 
