@@ -6,16 +6,20 @@ import dev.kajteh.configma.serialization.serializer.Serializer;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public final class Config<T> {
 
-    private final Class<T> type;
+    private static final Map<Class<?>, Field[]> FIELD_CACHE = new ConcurrentHashMap<>();
+
     private final T instance;
     private final File file;
     private final ConfigParser parser;
     private final SerializationService serializer;
+    private final Field[] serializableFields;
 
     Config(
             final ConfigParser adapter,
@@ -24,54 +28,73 @@ public final class Config<T> {
             final File file,
             final List<Serializer<?>> serializers
     ) {
-        this.type = type;
         this.instance = instance;
         this.file = file;
         this.parser = adapter;
         this.serializer = new SerializationService(serializers);
+
+        this.serializableFields = FIELD_CACHE.computeIfAbsent(type, t ->
+                Arrays.stream(t.getDeclaredFields())
+                        .filter(field -> !Modifier.isFinal(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()))
+                        .peek(field -> field.setAccessible(true))
+                        .toArray(Field[]::new)
+        );
     }
 
     void load(final boolean write) {
-        try (final var reader = new FileReader(this.file)) {
-            final var loadedValues = Optional.ofNullable(this.parser.load(reader))
+        final Map<String, Object> loadedValues;
+        try (final var reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(this.file), StandardCharsets.UTF_8))) {
+            loadedValues = Optional.ofNullable(parser.load(reader))
                     .orElseGet(LinkedHashMap::new);
+        } catch (final IOException e) {
+            throw new ConfigException(e);
+        }
 
-            final Map<String, Object> valuesToWrite = new LinkedHashMap<>();
+        final Map<String, Object> toWrite = write ? new LinkedHashMap<>() : null;
 
-            for (final var field : this.getSerializableFields()) {
-                field.setAccessible(true);
+        for (final var field : this.serializableFields) {
+            final String name = this.parser.formatField(field.getName());
+            final var type = field.getGenericType();
 
-                final String name = this.formatFieldName(field.getName());
+            try {
                 final Object value = loadedValues.containsKey(name)
-                        ? this.serializer.deserializeValue(loadedValues.get(name), field.getGenericType())
-                        : field.get(this.instance);
+                        ? this.serializer.deserializeValue(loadedValues.get(name), type)
+                        : field.get(instance);
 
                 field.set(this.instance, value);
-                valuesToWrite.put(name, this.serializer.serializeValue(value, field.getGenericType()));
-            }
 
-            if (write && !valuesToWrite.isEmpty()) {
-                try (final var writer = new FileWriter(this.file)) {
-                    this.parser.write(writer, valuesToWrite);
-                }
+                if (write) toWrite.put(name, this.serializer.serializeValue(value, type));
+            } catch (final IllegalAccessException e) {
+                throw new ConfigException(e);
             }
-        } catch (final IOException | IllegalAccessException e) {
-            throw new ConfigException(e);
+        }
+
+        if (write && !toWrite.isEmpty()) {
+            try (final var writer = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8))) {
+                parser.write(writer, toWrite);
+            } catch (final IOException e) {
+                throw new ConfigException(e);
+            }
         }
     }
 
     public void save() {
-        try (final var writer = new FileWriter(this.file)) {
-            final Map<String, Object> valuesToWrite = new LinkedHashMap<>();
-
-            for (final var field : this.getSerializableFields()) {
-                final String name = this.formatFieldName(field.getName());
-                final Object value = field.get(this.instance);
-                valuesToWrite.put(name, this.serializer.serializeValue(value, field.getGenericType()));
+        final Map<String, Object> toWrite = new LinkedHashMap<>();
+        try {
+            for (final var field : this.serializableFields) {
+                final String name = this.parser.formatField(field.getName());
+                toWrite.put(name, this.serializer.serializeValue(field.get(this.instance), field.getGenericType()));
             }
+        } catch (final IllegalAccessException e) {
+            throw new ConfigException(e);
+        }
 
-            this.parser.write(writer, valuesToWrite);
-        } catch (final IOException | IllegalAccessException e) {
+        try (final var writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8))) {
+            this.parser.write(writer, toWrite);
+        } catch (final IOException e) {
             throw new ConfigException(e);
         }
     }
@@ -90,18 +113,5 @@ public final class Config<T> {
 
     public void edit(final Consumer<T> instanceConsumer) {
         instanceConsumer.accept(this.instance);
-    }
-
-    private String formatFieldName(final String name) {
-        final var namingStyle = this.parser.getNamingStyle();
-        return namingStyle == null ? name : namingStyle.format(name);
-    }
-
-    private Field[] getSerializableFields() {
-        return Arrays.stream(this.type.getDeclaredFields())
-                .filter(field -> !Modifier.isFinal(field.getModifiers()))
-                .filter(field -> !Modifier.isTransient(field.getModifiers()))
-                .peek(field -> field.setAccessible(true))
-                .toArray(Field[]::new);
     }
 }

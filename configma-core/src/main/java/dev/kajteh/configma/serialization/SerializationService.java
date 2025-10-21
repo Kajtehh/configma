@@ -4,14 +4,15 @@ import dev.kajteh.configma.serialization.serializer.ObjectSerializer;
 import dev.kajteh.configma.serialization.serializer.Serializer;
 import dev.kajteh.configma.serialization.serializer.ValueSerializer;
 
-import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class SerializationService {
 
     private final List<Serializer<?>> serializers;
+    private final Map<Class<?>, Serializer<?>> serializerCache = new ConcurrentHashMap<>();
 
     public SerializationService(final List<Serializer<?>> serializers) {
         this.serializers = serializers;
@@ -37,8 +38,6 @@ public final class SerializationService {
             case final Collection<?> collection -> this.serializeCollection(collection, getTypeArgument(type, 0));
 
             case final Map<?, ?> map -> this.serializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
-
-            case final Serializable serializable -> value; // TODO
 
             default -> value;
         };
@@ -76,6 +75,13 @@ public final class SerializationService {
         };
     }
 
+    @SuppressWarnings("unchecked")
+    private <T> Serializer<T> findSerializer(final Class<?> rawType) {
+        return (Serializer<T>) this.serializerCache.computeIfAbsent(rawType, type ->
+                this.serializers.stream().filter(s -> s.matches(type)).findFirst().orElse(null)
+        );
+    }
+
     private static Class<?> getRawType(final Type type) {
         if (type instanceof Class<?> c) return c;
         if (type instanceof ParameterizedType pt) return (Class<?>) pt.getRawType();
@@ -86,14 +92,6 @@ public final class SerializationService {
         if (type instanceof ParameterizedType pt && pt.getActualTypeArguments().length > index)
             return pt.getActualTypeArguments()[index];
         return Object.class;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> Serializer<T> findSerializer(Class<?> rawType) {
-        return (Serializer<T>) serializers.stream()
-                .filter(s -> s.matches(rawType))
-                .findFirst()
-                .orElse(null);
     }
 
     private Collection<Object> serializeCollection(final Collection<?> collection, final Type elementType) {

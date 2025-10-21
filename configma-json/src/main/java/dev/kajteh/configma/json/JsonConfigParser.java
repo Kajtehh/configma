@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dev.kajteh.configma.ConfigParser;
-import dev.kajteh.configma.ConfigNamingStyle;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -35,7 +34,7 @@ public class JsonConfigParser implements ConfigParser {
     }
 
     @Override
-    public ConfigNamingStyle getNamingStyle() {
-        return ConfigNamingStyle.CAMEL;
+    public String formatField(String name) {
+        return ""; // TODO: 10/21/2025
     }
 }

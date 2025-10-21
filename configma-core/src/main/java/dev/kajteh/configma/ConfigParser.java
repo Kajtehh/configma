@@ -7,5 +7,5 @@ import java.util.Map;
 public interface ConfigParser {
     Map<String, Object> load(final Reader reader);
     void write(final Writer writer, final Map<String, Object> values);
-    ConfigNamingStyle getNamingStyle();
+    String formatField(final String name);
 }

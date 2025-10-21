@@ -1,6 +1,7 @@
 package dev.kajteh.configma.serialization;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,10 +19,12 @@ public class SerializationContext {
     }
 
     public <T> void set(final String key, final T value, final Type type) {
-        this.values.put(key, this.serializationService.serializeValue(value, type));
+        this.values.put(key, value != null
+                ? this.serializationService.serializeValue(value, type)
+                : null);
     }
 
-    protected Map<String, Object> values() {
-        return this.values;
+    public Map<String, Object> values() {
+        return Collections.unmodifiableMap(this.values);
     }
 }

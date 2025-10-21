@@ -22,7 +22,10 @@ public class DeserializationContext {
     }
 
     public <T> T get(final String key, final Type type, final T defaultValue) {
-        final T value = this.get(key, type);
-        return value != null ? value : defaultValue;
+        final Object raw = this.values.get(key);
+
+        if (raw == null) return defaultValue;
+
+        return this.serializationService.deserializeValue(raw, type);
     }
-}
+}  

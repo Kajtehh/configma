@@ -47,7 +47,7 @@ public final class ConfigBuilder<T> {
         return this;
     }
 
-    public Config<T> initialize() {
+    public Config<T> build() {
         if (this.file == null) {
             throw new ConfigException("Config file cannot be null");
         }

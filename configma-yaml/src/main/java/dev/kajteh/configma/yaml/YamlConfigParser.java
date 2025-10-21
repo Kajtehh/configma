@@ -1,7 +1,6 @@
 package dev.kajteh.configma.yaml;
 
 import dev.kajteh.configma.ConfigParser;
-import dev.kajteh.configma.ConfigNamingStyle;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -35,7 +34,11 @@ public class YamlConfigParser implements ConfigParser {
     }
 
     @Override
-    public ConfigNamingStyle getNamingStyle() {
-        return ConfigNamingStyle.KEBAB;
+    public String formatField(final String name) {
+        if (name == null || name.isEmpty()) {
+            return name;
+        }
+
+        return name.replaceAll("([a-z])([A-Z])", "$1-$2").toLowerCase();
     }
 }
