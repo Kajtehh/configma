@@ -19,7 +19,7 @@ Add GitHub Packages repository to your `pom.xml`:
 
 ### Add dependencies
 
-Add the core library
+Add the core library:
 ```xml
 <dependency>
     <groupId>dev.kajteh</groupId>
