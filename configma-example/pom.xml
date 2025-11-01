@@ -12,16 +12,20 @@
 
     <artifactId>configma-example</artifactId>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <dependency>
-            <groupId>dev.kajteh</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>configma-core</artifactId>
-            <version>1.0.8-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>dev.kajteh</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>configma-yaml</artifactId>
-            <version>1.0.8-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
