@@ -13,6 +13,7 @@
         <module>configma-core</module>
         <module>configma-json</module>
         <module>configma-yaml</module>
+        <module>configma-example</module>
     </modules>
 
     <properties>

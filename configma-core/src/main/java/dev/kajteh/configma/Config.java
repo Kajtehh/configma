@@ -35,7 +35,8 @@ public final class Config<T> {
 
         this.serializableFields = FIELD_CACHE.computeIfAbsent(type, t ->
                 Arrays.stream(t.getDeclaredFields())
-                        .filter(field -> !Modifier.isFinal(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()))
+                        .filter(field -> !Modifier.isFinal(field.getModifiers())
+                                && !Modifier.isTransient(field.getModifiers()))
                         .peek(field -> field.setAccessible(true))
                         .toArray(Field[]::new)
         );

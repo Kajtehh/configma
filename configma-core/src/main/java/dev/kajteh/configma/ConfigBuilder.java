@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+
+import static dev.kajteh.configma.ConfigInstanceFactory.createInstance;
 
 public final class ConfigBuilder<T> {
 
@@ -22,9 +25,10 @@ public final class ConfigBuilder<T> {
 
     private ConfigParser parser;
     private File file;
+    private Logger logger;
 
     public ConfigBuilder(final Class<T> type) {
-        this(type, ConfigInstanceFactory.createInstance(type));
+        this(type, createInstance(type));
     }
 
     public ConfigBuilder(final Class<T> type, final T instance) {

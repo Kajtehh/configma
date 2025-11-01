@@ -96,7 +96,7 @@ public final class SerializationService {
 
     private Collection<Object> serializeCollection(final Collection<?> collection, final Type elementType) {
         final Collection<Object> result = collection instanceof List ? new ArrayList<>() : new LinkedHashSet<>();
-        for (var element : collection) {
+        for (final var element : collection) {
             result.add(this.serializeValue(element, elementType));
         }
 
