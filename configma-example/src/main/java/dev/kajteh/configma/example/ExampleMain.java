@@ -8,11 +8,11 @@ import java.io.File;
 
 public class ExampleMain {
 
-    public static void main(final String[] args) {
-        final var exampleConfig = ConfigFactory.create(ExampleConfig.class, builder -> {
-            builder.serializer(new UserSerializer());
-            builder.parser(new YamlConfigParser());
-            builder.file(new File("config.yml"));
+    public static void main(String[] args) {
+        final var exampleConfig = ConfigFactory.create(ExampleConfig.class, b -> {
+            b.parser(new YamlConfigParser());
+            b.serializer(new UserSerializer());
+            b.file(new File("config.yml"));
         });
 
         exampleConfig.get(config -> config.users.forEach(System.out::println));

@@ -32,9 +32,4 @@ public class JsonConfigParser implements ConfigParser {
     public void write(final Writer writer, final Map<String, Object> values) {
         this.gson.toJson(values, writer);
     }
-
-    @Override
-    public String formatField(String name) {
-        return ""; // TODO: 10/21/2025
-    }
 }

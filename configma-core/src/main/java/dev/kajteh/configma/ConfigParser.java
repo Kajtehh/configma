@@ -7,5 +7,8 @@ import java.util.Map;
 public interface ConfigParser {
     Map<String, Object> load(final Reader reader);
     void write(final Writer writer, final Map<String, Object> values);
-    String formatField(final String name);
+
+    default String formatField(final String name) {
+        return name;
+    }
 }

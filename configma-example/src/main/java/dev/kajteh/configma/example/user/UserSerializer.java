@@ -4,7 +4,6 @@ import dev.kajteh.configma.serialization.DeserializationContext;
 import dev.kajteh.configma.serialization.SerializationContext;
 import dev.kajteh.configma.serialization.serializer.ObjectSerializer;
 
-import java.time.Instant;
 import java.util.UUID;
 
 public class UserSerializer implements ObjectSerializer<User> {
@@ -14,8 +13,6 @@ public class UserSerializer implements ObjectSerializer<User> {
         context.set("id", user.id());
         context.set("name", user.name());
         context.set("email", user.email());
-
-        if(user.emailVerifiedAt() != null) context.set("email-verified-at", user.emailVerifiedAt());
     }
 
     @Override
@@ -23,8 +20,7 @@ public class UserSerializer implements ObjectSerializer<User> {
         return new User(
                 context.get("id", UUID.class),
                 context.get("name", String.class),
-                context.get("email", String.class),
-                context.get("email-verified-at", Instant.class)
+                context.get("email", String.class)
         );
     }
 
