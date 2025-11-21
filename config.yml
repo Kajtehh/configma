@@ -2,11 +2,17 @@ users:
 - id: 4c5023e8-822f-46ea-9800-78475c6ceedb
   name: Kajteh
   email: me@kajteh.devESAUHD
+- id: 1677014b-1687-41c8-8d10-5f0c21f0eeaa
+  name: eeegbebbe
+  email: llolol@kajteh.dev
+- id: 3d612334-7f84-4d4a-a8c1-d161df436524
+  name: eeegbebbe
+  email: llolol@kajteh.dev
+- id: f3b1034b-047f-4b50-94be-bd2fd8b7f5e8
+  name: eeegbebbe
+  email: llolol@kajteh.dev
 database:
   host: localhost
   port: 5432
   user: root
   password: secret
-  databases:
-  - main
-  - analytics

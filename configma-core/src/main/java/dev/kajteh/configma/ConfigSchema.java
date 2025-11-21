@@ -42,7 +42,7 @@ public final class ConfigSchema<T> {
                         f.getName(),
                         f.getGenericType(),
                         f.getType(),
-                        f.getAnnotation(Comment.class).value(), // todo
+                        f.isAnnotationPresent(Comment.class) ? f.getAnnotation(Comment.class).value() : null, // todo
                         f.isAnnotationPresent(NestedConfig.class)
                 ))
                 .toArray(ConfigField[]::new);

@@ -38,7 +38,7 @@ public final class Config<T> {
                     .orElseGet(LinkedHashMap::new);
 
         } catch (final IOException e) {
-            throw new ConfigException("Failed to load configuration file: " + file.getAbsolutePath(), e);
+            throw new ConfigException("Failed to load configuration file: " + this.file.getAbsolutePath(), e);
         }
 
         final var toWrite = this.loadSchema(this.schema, loadedValues, write);
@@ -48,7 +48,7 @@ public final class Config<T> {
                     new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8))) {
                 parser.write(writer, toWrite);
             } catch (final IOException e) {
-                throw new ConfigException("Failed to write configuration file: " + file.getAbsolutePath(), e);
+                throw new ConfigException("Failed to write configuration file: " + this.file.getAbsolutePath(), e);
             }
         }
     }
@@ -106,25 +106,20 @@ public final class Config<T> {
             this.parser.write(writer, toWrite);
 
         } catch (final IOException e) {
-            throw new ConfigException("Failed to save configuration to file: " + file.getAbsolutePath(), e);
+            throw new ConfigException("Failed to save configuration to file: " + this.file.getAbsolutePath(), e);
         }
     }
 
     private Map<String, Object> saveSchema(final ConfigSchema<?> schema) {
-        final var instance = schema.instance();
         final Map<String, Object> out = new LinkedHashMap<>();
 
         for (final var field : schema.fields()) {
 
             final var formattedName = this.parser.formatField(field.name());
 
-            if (field.isNestedConfig()) {
-                out.put(formattedName, saveSchema(field.nestedSchema()));
-                continue;
-            }
-
-            final var value = field.getValue(instance);
-            out.put(formattedName, this.serializer.serializeValue(value, field.genericType()));
+            out.put(formattedName, field.isNestedConfig()
+                    ? this.saveSchema(field.nestedSchema())
+                    : this.serializer.serializeValue(field.getValue(schema.instance()), field.genericType()));
         }
 
         return out;
