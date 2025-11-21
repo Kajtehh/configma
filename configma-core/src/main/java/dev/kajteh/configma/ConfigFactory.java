@@ -10,20 +10,11 @@ public final class ConfigFactory {
         return new ConfigBuilder<>(type);
     }
 
-    public static <T> ConfigBuilder<T> builder(final Class<T> type, final T instance) {
-        return new ConfigBuilder<>(type, instance);
-    }
-
     public static <T> Config<T> create(final Class<T> type, final Consumer<ConfigBuilder<T>> builderConsumer) {
-        return buildConfig(builder(type), builderConsumer);
-    }
+        final var builder = builder(type);
 
-    public static <T> Config<T> create(final Class<T> type, final T instance, final Consumer<ConfigBuilder<T>> builderConsumer) {
-        return buildConfig(builder(type, instance), builderConsumer);
-    }
+        builderConsumer.accept(builder);
 
-    private static <T> Config<T> buildConfig(final ConfigBuilder<T> builder, final Consumer<ConfigBuilder<T>> consumer) {
-        consumer.accept(builder);
         return builder.build();
     }
 }

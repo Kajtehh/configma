@@ -1,10 +1,10 @@
 package dev.kajteh.configma.serialization.serializer.common;
 
-import dev.kajteh.configma.serialization.serializer.ValueSerializer;
+import dev.kajteh.configma.serialization.serializer.TypeSerializer;
 
 import java.util.UUID;
 
-public class UUIDSerializer implements ValueSerializer<UUID> {
+public class UUIDSerializer implements TypeSerializer<UUID> {
 
     @Override
     public Object serialize(final UUID uuid) {

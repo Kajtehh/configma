@@ -1,0 +1,12 @@
+users:
+- id: 4c5023e8-822f-46ea-9800-78475c6ceedb
+  name: Kajteh
+  email: me@kajteh.devESAUHD
+database:
+  host: localhost
+  port: 5432
+  user: root
+  password: secret
+  databases:
+  - main
+  - analytics

@@ -1,6 +1,7 @@
 package dev.kajteh.configma.serialization;
 
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 
 public class DeserializationContext {
@@ -27,5 +28,13 @@ public class DeserializationContext {
         if (raw == null) return defaultValue;
 
         return this.serializationService.deserializeValue(raw, type);
+    }
+
+    public <E> List<E> getList(final String key, final Class<E> elementType) {
+        return this.get(key, GenericType.of(List.class, elementType));
+    }
+
+    public <K, V> Map<K, V> getMap(final String key, final Class<K> keyType, final Class<V> valueType) {
+        return this.get(key, GenericType.of(Map.class, keyType, valueType));
     }
 }  

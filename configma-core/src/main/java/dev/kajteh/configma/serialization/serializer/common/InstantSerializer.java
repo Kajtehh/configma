@@ -1,10 +1,10 @@
 package dev.kajteh.configma.serialization.serializer.common;
 
-import dev.kajteh.configma.serialization.serializer.ValueSerializer;
+import dev.kajteh.configma.serialization.serializer.TypeSerializer;
 
 import java.time.Instant;
 
-public class InstantSerializer implements ValueSerializer<Instant> {
+public class InstantSerializer implements TypeSerializer<Instant> {
 
     @Override
     public Object serialize(final Instant instant) {

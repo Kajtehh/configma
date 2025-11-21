@@ -10,8 +10,6 @@ import java.util.Map;
 
 public class YamlConfigParser implements ConfigParser {
 
-    public static final YamlConfigParser DEFAULT = new YamlConfigParser();
-
     private final Yaml yaml;
 
     public YamlConfigParser(final Yaml yaml) {
@@ -23,6 +21,10 @@ public class YamlConfigParser implements ConfigParser {
         dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 
         this.yaml = new Yaml(dumperOptions);
+    }
+
+    public static YamlConfigParser standard() {
+        return new YamlConfigParser();
     }
 
     @Override

@@ -2,7 +2,7 @@ package dev.kajteh.configma.serialization;
 
 import dev.kajteh.configma.serialization.serializer.ObjectSerializer;
 import dev.kajteh.configma.serialization.serializer.Serializer;
-import dev.kajteh.configma.serialization.serializer.ValueSerializer;
+import dev.kajteh.configma.serialization.serializer.TypeSerializer;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -23,8 +23,8 @@ public final class SerializationService {
 
         final Serializer<T> serializer = this.findSerializer(getRawType(type));
 
-        if (serializer instanceof ValueSerializer<T> valueSerializer)
-            return valueSerializer.serialize(value);
+        if (serializer instanceof TypeSerializer<T> typeSerializer)
+            return typeSerializer.serialize(value);
 
         if (serializer instanceof ObjectSerializer<T> objectSerializer) {
             final var context = new SerializationContext(this);
@@ -54,8 +54,8 @@ public final class SerializationService {
 
         final Serializer<T> serializer = this.findSerializer(rawType);
 
-        if (serializer instanceof ValueSerializer<T> valueSerializer)
-            return valueSerializer.deserialize(raw);
+        if (serializer instanceof TypeSerializer<T> typeSerializer)
+            return typeSerializer.deserialize(raw);
 
         if (serializer instanceof ObjectSerializer<T> objectSerializer && raw instanceof Map<?, ?> map) {
             final var context = new DeserializationContext(this, (Map<String, Object>) map);

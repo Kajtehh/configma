@@ -23,6 +23,10 @@ public class JsonConfigParser implements ConfigParser {
                 .create());
     }
 
+    public static JsonConfigParser standard() {
+        return new JsonConfigParser();
+    }
+
     @Override
     public Map<String, Object> load(final Reader reader) {
         return this.gson.fromJson(reader, new TypeToken<Map<String, Object>>() {}.getType());

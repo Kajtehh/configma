@@ -8,9 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
-
-import static dev.kajteh.configma.ConfigInstanceFactory.createInstance;
 
 public final class ConfigBuilder<T> {
 
@@ -20,25 +17,29 @@ public final class ConfigBuilder<T> {
     );
 
     private final Class<T> type;
-    private final T instance;
-    private final List<Serializer<?>> customSerializers = new ArrayList<>();
+    private final List<Serializer<?>> additionalSerializers = new ArrayList<>();
 
+    private T instance;
     private ConfigParser parser;
     private File file;
-    private Logger logger;
+    private boolean autoLoad = true;
 
     public ConfigBuilder(final Class<T> type) {
-        this(type, createInstance(type));
+        this.type = type;
     }
 
-    public ConfigBuilder(final Class<T> type, final T instance) {
-        this.type = type;
+    public ConfigBuilder<T> instance(final T instance) {
         this.instance = instance;
+        return this;
     }
 
     public ConfigBuilder<T> file(final File file) {
         this.file = file;
         return this;
+    }
+
+    public ConfigBuilder<T> file(final String pathname) {
+        return this.file(new File(pathname));
     }
 
     public ConfigBuilder<T> parser(final ConfigParser parser) {
@@ -47,38 +48,41 @@ public final class ConfigBuilder<T> {
     }
 
     public ConfigBuilder<T> serializer(final Serializer<?>... serializers) {
-        this.customSerializers.addAll(List.of(serializers));
+        this.additionalSerializers.addAll(List.of(serializers));
+        return this;
+    }
+
+    public ConfigBuilder<T> autoLoad(final boolean autoLoad) {
+        this.autoLoad = autoLoad;
         return this;
     }
 
     public Config<T> build() {
-        if (this.file == null) {
+        if (this.file == null)
             throw new ConfigException("Config file cannot be null");
-        }
+        if (this.parser == null)
+            throw new ConfigException("Config parser cannot be null");
 
         this.ensureFileExists(file);
 
         final var serializers = new ArrayList<>(COMMON_SERIALIZERS);
-        serializers.addAll(this.customSerializers);
+        serializers.addAll(this.additionalSerializers);
 
         final var config = new Config<>(this.parser, this.type, this.instance, this.file, serializers);
-        config.load(true);
+
+        if (autoLoad) config.load(true);
 
         return config;
     }
 
     private void ensureFileExists(final File file) {
-        if (file.exists()) return;
-
         try {
             final var parent = file.getParentFile();
-            if (parent != null && !parent.exists()) {
-                if (!parent.mkdirs()) {
-                    throw new IOException("Failed to create directories for " + parent.getPath());
-                }
+            if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                throw new IOException("Failed to create directories for " + parent.getPath());
             }
 
-            if (!file.createNewFile()) {
+            if (!file.exists() && !file.createNewFile()) {
                 throw new IOException("Failed to create config file " + file.getPath());
             }
         } catch (final IOException e) {

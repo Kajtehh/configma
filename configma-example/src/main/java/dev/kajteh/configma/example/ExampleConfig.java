@@ -1,5 +1,6 @@
 package dev.kajteh.configma.example;
 
+import dev.kajteh.configma.annotation.NestedConfig;
 import dev.kajteh.configma.example.user.User;
 
 import java.util.List;
@@ -14,4 +15,14 @@ public class ExampleConfig {
                     "me@kajteh.dev"
             )
     );
+
+    @NestedConfig
+    public DatabaseConfig database = new DatabaseConfig();
+
+    public static class DatabaseConfig {
+        public String host = "localhost";
+        public int port = 5432;
+        public String user = "root";
+        public String password = "secret";
+    }
 }
