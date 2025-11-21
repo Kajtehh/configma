@@ -89,13 +89,13 @@ public class AppConfig {
 ```java
 final var config = ConfigFactory.builder(AppConfig.class)
         .file(new File("config.yml"))
-        .parser(new YamlConfigParser()) // or JsonConfigParser
+        .parser(YamlConfigParser.standard()) // or JsonConfigParser#standard
         .serializer(new TaskSerializer(), new UserSerializer()) // optional, only for custom serializers
-        .initialize();
+        .build();
 ```
 Access configuration values:
 ```java
-final var users = config.get().users;
+var users = config.get().users;
 users.forEach(user -> System.out.println(user.name()));
 
 // or use lambda
@@ -142,8 +142,7 @@ public class UserSerializer implements ObjectSerializer<User> {
     public void serialize(SerializationContext context, User user) {
         context.set("id", user.id());
         context.set("name", user.name());
-        context.set("tasks", user.tasks(), new TypeReference<List<Task>>() {}.getType());
-        // Type needed to tell the serializer the element type due to Java's type erasure
+        context.setList("tasks", user.tasks(), Task.class);
     }
 
     @Override
@@ -151,8 +150,7 @@ public class UserSerializer implements ObjectSerializer<User> {
         return new User(
                 context.get("id", UUID.class),
                 context.get("name", String.class),
-                context.get("tasks", new TypeReference<List<Task>>() {}.getType())
-                // Type needed so deserializer knows it's a List of Task, not a raw List
+                context.getList("tasks", Task.class)
         );
     }
 
@@ -173,9 +171,7 @@ public class YesNoBooleanSerializer implements ValueSerializer<Boolean> {
 
     @Override
     public Boolean deserialize(Object raw) {
-        final String string = raw.toString().toLowerCase();
-        
-        return switch (string) {
+        return switch (raw.toString().toLowerCase()) {
             case "yes", "true" -> true;
             case "no", "false" -> false;
             default -> throw new IllegalArgumentException("Cannot convert to Boolean: " + raw);
