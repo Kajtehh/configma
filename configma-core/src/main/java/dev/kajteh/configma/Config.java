@@ -38,7 +38,7 @@ public final class Config<T> {
                     .orElseGet(LinkedHashMap::new);
 
         } catch (final IOException e) {
-            throw new ConfigException(e); // todo
+            throw new ConfigException("Failed to load configuration file: " + file.getAbsolutePath(), e);
         }
 
         final var toWrite = this.loadSchema(this.schema, loadedValues, write);
@@ -48,7 +48,7 @@ public final class Config<T> {
                     new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8))) {
                 parser.write(writer, toWrite);
             } catch (final IOException e) {
-                throw new ConfigException(e); // todo
+                throw new ConfigException("Failed to write configuration file: " + file.getAbsolutePath(), e);
             }
         }
     }
@@ -106,7 +106,7 @@ public final class Config<T> {
             this.parser.write(writer, toWrite);
 
         } catch (final IOException e) {
-            throw new ConfigException(e); // todo
+            throw new ConfigException("Failed to save configuration to file: " + file.getAbsolutePath(), e);
         }
     }
 
