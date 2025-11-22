@@ -11,34 +11,31 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class SerializationService {
 
-    private final List<Serializer<?>> serializers;
-    private final Map<Class<?>, Serializer<?>> serializerCache = new ConcurrentHashMap<>();
+    private final List<Serializer<?, ?>> serializers;
+    private final Map<Class<?>, Serializer<?, ?>> serializerCache = new ConcurrentHashMap<>();
 
-    public SerializationService(final List<Serializer<?>> serializers) {
+    public SerializationService(final List<Serializer<?, ?>> serializers) {
         this.serializers = serializers;
     }
 
     public <T> Object serializeValue(final T value, final Type type) {
-        if(value == null) return null;
+        if (value == null) return null;
 
-        final Serializer<T> serializer = this.findSerializer(getRawType(type));
+        final var serializer = this.findSerializer(getRawType(type));
 
-        if (serializer instanceof TypeSerializer<T> typeSerializer)
-            return typeSerializer.serialize(value);
+        if (serializer instanceof TypeSerializer<?, ?> typeSerializer)
+            return asTypeSerializer(typeSerializer).serialize(value);
 
-        if (serializer instanceof ObjectSerializer<T> objectSerializer) {
+        if (serializer instanceof ObjectSerializer<?> objectSerializer) {
             final var context = new SerializationContext(this);
-            objectSerializer.serialize(context, value);
+            asObjectSerializer(objectSerializer).serialize(context, value);
             return context.values();
         }
 
         return switch (value) {
             case final Enum<?> e -> e.name();
-
             case final Collection<?> collection -> this.serializeCollection(collection, getTypeArgument(type, 0));
-
             case final Map<?, ?> map -> this.serializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
-
             default -> value;
         };
     }
@@ -47,37 +44,46 @@ public final class SerializationService {
     public <T> T deserializeValue(final Object raw, final Type type) {
         if (raw == null) return null;
 
-        final Class<?> rawType = getRawType(type);
+        final var rawType = getRawType(type);
 
-        if (rawType.isEnum() && raw instanceof String s)
+        if (rawType.isEnum() && raw instanceof String s) {
             return (T) Enum.valueOf(rawType.asSubclass(Enum.class), s);
+        }
 
-        final Serializer<T> serializer = this.findSerializer(rawType);
+        final var serializer = this.findSerializer(rawType);
 
-        if (serializer instanceof TypeSerializer<T> typeSerializer)
-            return typeSerializer.deserialize(raw);
+        if (serializer instanceof TypeSerializer<?, ?> typeSerializer) {
+            return (T) asTypeSerializer(typeSerializer).deserialize(raw);
+        }
 
-        if (serializer instanceof ObjectSerializer<T> objectSerializer && raw instanceof Map<?, ?> map) {
+        if (serializer instanceof ObjectSerializer<?> objectSerializer && raw instanceof Map<?, ?> map) {
             final var context = new DeserializationContext(this, (Map<String, Object>) map);
-            return objectSerializer.deserialize(context);
+            return (T) asObjectSerializer(objectSerializer).deserialize(context);
         }
 
         return switch (raw) {
             case final Collection<?> collection when Collection.class.isAssignableFrom(rawType) ->
                     (T) this.deserializeCollection(collection, getTypeArgument(type, 0), rawType);
-
             case final Map<?, ?> map when Map.class.isAssignableFrom(rawType) ->
                     (T) this.deserializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
-
             case final Number number -> (T) convertNumber(number, rawType);
-
             default -> (T) raw;
         };
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Serializer<T> findSerializer(final Class<?> rawType) {
-        return (Serializer<T>) this.serializerCache.computeIfAbsent(rawType, type ->
+    private static <T> ObjectSerializer<T> asObjectSerializer(final Serializer<?, ?> serializer) {
+        return (ObjectSerializer<T>) serializer;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T, R> TypeSerializer<T, R> asTypeSerializer(final Serializer<?, ?> serializer) {
+        return (TypeSerializer<T, R>) serializer;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> Serializer<T, ?> findSerializer(final Class<?> rawType) {
+        return (Serializer<T, ?>) this.serializerCache.computeIfAbsent(rawType, type ->
                 this.serializers.stream().filter(s -> s.matches(type)).findFirst().orElse(null)
         );
     }
@@ -99,20 +105,17 @@ public final class SerializationService {
         for (final var element : collection) {
             result.add(this.serializeValue(element, elementType));
         }
-
         return result;
     }
 
     private Map<Object, Object> serializeMap(final Map<?, ?> map, final Type keyType, final Type valueType) {
         final Map<Object, Object> result = new LinkedHashMap<>();
-
         for (final var entry : map.entrySet()) {
             result.put(
                     this.serializeValue(entry.getKey(), keyType),
                     this.serializeValue(entry.getValue(), valueType)
             );
         }
-
         return result;
     }
 
@@ -121,7 +124,6 @@ public final class SerializationService {
         for (final var element : collection) {
             result.add(this.deserializeValue(element, elementType));
         }
-
         return result;
     }
 
@@ -133,7 +135,6 @@ public final class SerializationService {
                     this.deserializeValue(entry.getValue(), valueType)
             );
         }
-
         return result;
     }
 

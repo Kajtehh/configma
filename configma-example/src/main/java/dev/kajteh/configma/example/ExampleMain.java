@@ -11,7 +11,7 @@ public class ExampleMain {
 
     public static void main(String[] args) {
         final var config = ConfigFactory.builder(ExampleConfig.class)
-                .file("config.yml")
+                .file("test/" + UUID.randomUUID() + ".yml")
                 .parser(YamlConfigParser.standard())
                 .serializer(new UserSerializer())
                 .build();

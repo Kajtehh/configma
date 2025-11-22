@@ -20,7 +20,7 @@ public final class Config<T> {
             final Class<T> type,
             final T instance,
             final File file,
-            final List<Serializer<?>> serializers
+            final List<Serializer<?, ?>> serializers
     ) {
         this.parser = parser;
         this.file = file;

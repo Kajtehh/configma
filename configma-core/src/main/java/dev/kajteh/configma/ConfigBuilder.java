@@ -11,13 +11,13 @@ import java.util.List;
 
 public final class ConfigBuilder<T> {
 
-    private static final List<Serializer<?>> COMMON_SERIALIZERS = List.of(
+    private static final List<Serializer<?, ?>> COMMON_SERIALIZERS = List.of(
             new UUIDSerializer(),
             new InstantSerializer()
     );
 
     private final Class<T> type;
-    private final List<Serializer<?>> additionalSerializers = new ArrayList<>();
+    private final List<Serializer<?, ?>> additionalSerializers = new ArrayList<>();
 
     private T instance;
     private ConfigParser parser;
@@ -47,7 +47,7 @@ public final class ConfigBuilder<T> {
         return this;
     }
 
-    public ConfigBuilder<T> serializer(final Serializer<?>... serializers) {
+    public ConfigBuilder<T> serializer(final Serializer<?, ?>... serializers) {
         this.additionalSerializers.addAll(List.of(serializers));
         return this;
     }

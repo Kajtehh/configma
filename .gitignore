@@ -113,4 +113,4 @@ buildNumber.properties
 run/
 
 # Configma
-configma-test
+test

@@ -2,6 +2,7 @@ package dev.kajteh.configma;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.*;
 
 public final class ConfigField {
 
@@ -53,15 +54,22 @@ public final class ConfigField {
     public Object getValue(final Object instance) {
         try {
             return this.rawField.get(instance);
-        } catch (final Exception e) {
+        } catch (final IllegalAccessException e) {
             throw new ConfigException("Cannot read field " + name, e);
         }
     }
 
-    public void setValue(final Object instance, final Object value) {
+    public void setValue(final Object instance, Object value) {
         try {
+            if (value instanceof Collection<?> collection) {
+                value = collection instanceof List<?> ? new ArrayList<>(collection)
+                        : new LinkedHashSet<>(collection);
+            } else if (value instanceof Map<?, ?> map) {
+                value = new LinkedHashMap<>(map);
+            }
+
             this.rawField.set(instance, value);
-        } catch (final Exception e) {
+        } catch (final IllegalAccessException | IllegalArgumentException e) {
             throw new ConfigException("Cannot set field " + name, e);
         }
     }

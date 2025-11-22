@@ -4,20 +4,20 @@ import dev.kajteh.configma.serialization.serializer.TypeSerializer;
 
 import java.time.Instant;
 
-public class InstantSerializer implements TypeSerializer<Instant> {
+public class InstantSerializer implements TypeSerializer<Instant, String> {
 
     @Override
-    public Object serialize(final Instant instant) {
+    public String serialize(final Instant instant) {
         return instant.toString();
     }
 
     @Override
-    public Instant deserialize(final Object raw) {
+    public Instant deserialize(final String string) {
         try {
-            return Instant.parse(raw.toString());
+            return Instant.parse(string);
         } catch (final Exception e) {
             throw new IllegalArgumentException(
-                    "Cannot deserialize value to Instant: '" + raw + "'", e
+                    "Cannot deserialize value to Instant: '" + string + "'", e
             );
         }
     }
