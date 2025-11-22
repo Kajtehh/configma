@@ -88,7 +88,7 @@ public class AppConfig {
 ### 3. Loading configuration
 ```java
 final var config = ConfigFactory.builder(AppConfig.class)
-        .file(new File("config.yml"))
+        .file(Paths.get("config.yml")) // or provide File
         .parser(YamlConfigParser.standard()) // or JsonConfigParser#standard
         .serializer(new TaskSerializer(), new UserSerializer()) // optional, only for custom serializers
         .build();
