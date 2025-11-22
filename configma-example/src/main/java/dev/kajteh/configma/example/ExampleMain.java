@@ -10,7 +10,7 @@ public class ExampleMain {
 
     public static void main(String[] args) {
         final var config = ConfigFactory.builder(ExampleConfig.class)
-                .file(Paths.get("test", "cfg.yml"))
+                .file(Paths.get("test", "test.yml"))
                 .parser(YamlConfigParser.standard())
                 .serializer(new UserSerializer())
                 .build();

@@ -1,5 +1,7 @@
 package dev.kajteh.configma.serialization;
 
+import dev.kajteh.configma.serialization.helper.GenericType;
+
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,6 +16,8 @@ public class SerializationContext {
     public SerializationContext(final SerializationService serializationService) {
         this.serializationService = serializationService;
     }
+
+    // TODO (optional) add key formatting
 
     public <T> void set(final String key, final T value) {
         this.set(key, value, value.getClass());

@@ -1,4 +1,4 @@
-package dev.kajteh.configma.serialization;
+package dev.kajteh.configma.serialization.helper;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

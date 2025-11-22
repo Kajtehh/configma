@@ -10,45 +10,50 @@ public final class ConfigField {
     private final String name;
     private final Type genericType;
     private final Class<?> type;
-    private final String[] comment;
+    private final List<String> comments;
+    private final String inlineComment;
     private final boolean nested;
     private final ConfigSchema<?> nestedSchema;
 
-    public ConfigField(final Field field, final String name, final Type genericType, final Class<?> type, final String[] comment, final boolean nested) {
+    public ConfigField(final Field field, final String name, final Type genericType, final Class<?> type, final List<String> comments, String inlineComment, final boolean nested) {
         this.rawField = field;
         this.name = name;
         this.genericType = genericType;
         this.type = type;
-        this.comment = comment;
+        this.comments = comments;
+        this.inlineComment = inlineComment;
         this.nested = nested;
+        this.nestedSchema = nested ? new ConfigSchema<>(type) : null;
 
         field.setAccessible(true);
-
-        this.nestedSchema = nested ? new ConfigSchema<>(type) : null;
     }
 
     public String name() {
-        return name;
+        return this.name;
     }
 
     public Type genericType() {
-        return genericType;
+        return this.genericType;
     }
 
     public Class<?> type() {
-        return type;
+        return this.type;
     }
 
     public boolean isNestedConfig() {
-        return nested;
+        return this.nested;
     }
 
     public ConfigSchema<?> nestedSchema() {
-        return nestedSchema;
+        return this.nestedSchema;
     }
 
-    public String[] comment() {
-        return this.comment;
+    public List<String> comments() {
+        return this.comments;
+    }
+
+    public String inlineComment() {
+        return this.inlineComment;
     }
 
     public Object getValue(final Object instance) {

@@ -1,4 +1,4 @@
-package dev.kajteh.configma.serialization.serializer.common;
+package dev.kajteh.configma.serialization.serializer.builtin;
 
 import dev.kajteh.configma.serialization.serializer.TypeSerializer;
 

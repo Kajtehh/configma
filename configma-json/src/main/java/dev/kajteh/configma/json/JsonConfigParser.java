@@ -3,6 +3,7 @@ package dev.kajteh.configma.json;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import dev.kajteh.configma.ConfigContext;
 import dev.kajteh.configma.ConfigParser;
 
 import java.io.Reader;
@@ -33,7 +34,7 @@ public class JsonConfigParser implements ConfigParser {
     }
 
     @Override
-    public void write(final Writer writer, final Map<String, Object> values) {
+    public void write(final Writer writer, final ConfigContext context, final Map<String, Object> values) {
         this.gson.toJson(values, writer);
     }
 }

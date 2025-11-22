@@ -1,11 +1,13 @@
 package dev.kajteh.configma;
 
-import dev.kajteh.configma.annotation.Comment;
-import dev.kajteh.configma.annotation.Exclude;
-import dev.kajteh.configma.annotation.NestedConfig;
+import dev.kajteh.configma.annotation.*;
+import dev.kajteh.configma.annotation.decoration.Comment;
+import dev.kajteh.configma.annotation.decoration.Header;
+import dev.kajteh.configma.annotation.decoration.InlineComment;
 
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,6 +16,7 @@ public final class ConfigSchema<T> {
     private static final Map<Class<?>, ConfigField[]> FIELD_CACHE = new ConcurrentHashMap<>();
 
     private final T instance;
+    private final List<String> header;
     private final ConfigField[] fields;
 
     public ConfigSchema(final Class<T> type) {
@@ -22,11 +25,16 @@ public final class ConfigSchema<T> {
 
     public ConfigSchema(final Class<T> type, final T instance) {
         this.instance = instance != null ? instance : this.createInstance(type);
+        this.header = type.isAnnotationPresent(Header.class) ? List.of(type.getAnnotation(Header.class).value()) : null;
         this.fields = FIELD_CACHE.computeIfAbsent(type, this::scanFields);
     }
 
     public T instance() {
         return this.instance;
+    }
+
+    public List<String> header() {
+        return this.header;
     }
 
     public ConfigField[] fields() {
@@ -42,8 +50,9 @@ public final class ConfigSchema<T> {
                         f.getName(),
                         f.getGenericType(),
                         f.getType(),
-                        f.isAnnotationPresent(Comment.class) ? f.getAnnotation(Comment.class).value() : null, // todo
-                        f.isAnnotationPresent(NestedConfig.class)
+                        f.isAnnotationPresent(Comment.class) ? List.of(f.getAnnotation(Comment.class).value()) : null,
+                        f.isAnnotationPresent(InlineComment.class) ? f.getAnnotation(InlineComment.class).value() : null,
+                        f.isAnnotationPresent(Nested.class)
                 ))
                 .toArray(ConfigField[]::new);
     }
