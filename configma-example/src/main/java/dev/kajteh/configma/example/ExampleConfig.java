@@ -8,6 +8,8 @@ import java.util.UUID;
 
 public class ExampleConfig {
 
+    public boolean productionMode = false;
+
     public List<User> users = List.of(
             new User(
                     UUID.randomUUID(),
