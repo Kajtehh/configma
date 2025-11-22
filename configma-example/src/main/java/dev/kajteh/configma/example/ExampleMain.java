@@ -5,13 +5,14 @@ import dev.kajteh.configma.example.user.User;
 import dev.kajteh.configma.example.user.UserSerializer;
 import dev.kajteh.configma.yaml.YamlConfigParser;
 
+import java.nio.file.Paths;
 import java.util.UUID;
 
 public class ExampleMain {
 
     public static void main(String[] args) {
         final var config = ConfigFactory.builder(ExampleConfig.class)
-                .file("test/" + UUID.randomUUID() + ".yml")
+                .file(Paths.get("test", UUID.randomUUID() + ".yml"))
                 .parser(YamlConfigParser.standard())
                 .serializer(new UserSerializer())
                 .build();

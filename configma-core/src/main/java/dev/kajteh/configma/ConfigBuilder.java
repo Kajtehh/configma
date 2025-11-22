@@ -6,6 +6,7 @@ import dev.kajteh.configma.serialization.serializer.common.UUIDSerializer;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,10 @@ public final class ConfigBuilder<T> {
     public ConfigBuilder<T> file(final File file) {
         this.file = file;
         return this;
+    }
+
+    public ConfigBuilder<T> file(final Path path) {
+        return this.file(path.toFile());
     }
 
     public ConfigBuilder<T> file(final String pathname) {
