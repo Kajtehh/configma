@@ -41,8 +41,6 @@ public final class Config<T> {
             throw new ConfigException("Failed to load configuration file: " + this.file.getAbsolutePath(), e);
         }
 
-        // tu jest git
-
         final var toWrite = this.loadSchema(this.schema, loadedValues, write);
 
         if (write && !toWrite.isEmpty()) {
@@ -71,7 +69,7 @@ public final class Config<T> {
             if (field.isNestedConfig()) {
                 final Map<String, Object> subLoaded =
                         loadedValues.containsKey(field.name())
-                                ? (Map<String, Object>) loadedValues.get(this.parser.formatField(field.name()))
+                                ? (Map<String, Object>) loadedValues.get(formattedName)
                                 : Map.of();
 
                 final var subWrite = this.loadSchema(field.nestedSchema(), subLoaded, write);
@@ -84,7 +82,7 @@ public final class Config<T> {
                 continue;
             }
 
-            final var sourceValue = loadedValues.get(this.parser.formatField(field.name()));
+            final var sourceValue = loadedValues.get(formattedName);
 
             final var value = sourceValue != null
                     ? this.serializer.deserializeValue(sourceValue, field.genericType())
