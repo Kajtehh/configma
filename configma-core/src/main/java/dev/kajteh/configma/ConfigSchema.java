@@ -14,13 +14,17 @@ public final class ConfigSchema<T> {
     private final T instance;
     private final ConfigField[] fields;
 
-    public ConfigSchema(final Class<T> type) {
-        this(type, null);
-    }
-
-    public ConfigSchema(final Class<T> type, final T instance) {
+    private ConfigSchema(final Class<T> type, final T instance) {
         this.instance = instance != null ? instance : this.createInstance(type);
         this.fields = FIELD_CACHE.computeIfAbsent(type, this::scanFields);
+    }
+
+    public static <T> ConfigSchema<T> of(final Class<T> type) {
+        return new ConfigSchema<>(type, null);
+    }
+
+    public static <T> ConfigSchema<T> of(final Class<T> type, final T instance) {
+        return new ConfigSchema<>(type, instance);
     }
 
     public T instance() {

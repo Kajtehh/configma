@@ -25,7 +25,7 @@ public final class Config<T> {
     ) {
         this.file = file;
         this.parser = parser;
-        this.schema = new ConfigSchema<>(type, instance);
+        this.schema = ConfigSchema.of(type, instance);
         this.context = ConfigContext.of(type);
         this.serializer = new SerializationService(serializers);
 

@@ -20,7 +20,7 @@ public record ConfigField(Field rawField, String name, Type genericType, Class<?
                 field.getType(),
                 field.isAnnotationPresent(Comment.class) ? List.of(field.getAnnotation(Comment.class).value()) : null,
                 field.isAnnotationPresent(InlineComment.class) ? field.getAnnotation(InlineComment.class).value() : null,
-                field.isAnnotationPresent(Nested.class) ? new ConfigSchema<>(field.getType()) : null
+                field.isAnnotationPresent(Nested.class) ? ConfigSchema.of(field.getType()) : null
         );
     }
 
