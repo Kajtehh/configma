@@ -9,12 +9,10 @@ import java.nio.file.Paths;
 public class ExampleMain {
 
     public static void main(String[] args) {
-        final var config = ConfigFactory.builder(ExampleConfig.class)
+        ConfigFactory.builder(ExampleConfig.class)
                 .file(Paths.get("test", "test.yml"))
                 .parser(YamlConfigParser.standard())
                 .serializer(new UserSerializer())
                 .build();
-
-        config.get(cfg -> System.out.println(cfg.productionMode));
     }
 }

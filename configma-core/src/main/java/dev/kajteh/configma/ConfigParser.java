@@ -6,7 +6,7 @@ import java.util.Map;
 
 public interface ConfigParser {
     Map<String, Object> load(final Reader reader);
-    void write(final Writer writer, final ConfigContext context, final Map<String, Object> values);
+    void write(final Writer writer, final Map<String, Object> values, final ConfigContext context);
 
     default String formatField(final String name) {
         return name;

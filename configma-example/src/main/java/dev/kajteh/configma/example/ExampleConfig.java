@@ -7,7 +7,7 @@ import dev.kajteh.configma.example.user.User;
 import java.util.List;
 import java.util.UUID;
 
-@Spacing(2)
+@Spacing(1)
 @Header({
         "",
         "░█████╗░░█████╗░███╗░░██╗███████╗██╗░██████╗░███╗░░░███╗░█████╗░",
@@ -39,9 +39,18 @@ public class ExampleConfig {
     public DatabaseConfig database = new DatabaseConfig();
 
     public static class DatabaseConfig {
+
+        @Comment("host")
         public String host = "localhost";
+
+        @Comment("port")
         public int port = 5432;
+
+        @Comment("User")
+        @InlineComment("Lolol")
         public String user = "root";
+
+        @Comment("haso")
         public String password = "secret";
     }
 }

@@ -28,6 +28,8 @@ public final class Config<T> {
         this.schema = new ConfigSchema<>(type, instance);
         this.context = ConfigContext.of(type);
         this.serializer = new SerializationService(serializers);
+
+        this.registerComments(this.schema, null, this.context);
     }
 
     void load(final boolean write) {
@@ -48,7 +50,9 @@ public final class Config<T> {
         if (write && !toWrite.isEmpty()) {
             try (final var writer = new BufferedWriter(
                     new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8))) {
-                this.parser.write(writer, this.context, toWrite);
+
+                this.parser.write(writer, toWrite, this.context);
+
             } catch (final IOException e) {
                 throw new ConfigException("Failed to write configuration file: " + this.file.getAbsolutePath(), e);
             }
@@ -67,9 +71,8 @@ public final class Config<T> {
         for (final var field : schema.fields()) {
 
             final var formattedName = this.parser.formatField(field.name());
-            this.applyComments(field, formattedName);
 
-            if (field.isNestedConfig()) {
+            if (field.isNested()) {
                 final Map<String, Object> subLoaded =
                         loadedValues.containsKey(field.name())
                                 ? (Map<String, Object>) loadedValues.get(formattedName)
@@ -106,7 +109,7 @@ public final class Config<T> {
         try (final var writer = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8))) {
 
-            this.parser.write(writer, this.context, toWrite);
+            this.parser.write(writer, toWrite, this.context);
 
         } catch (final IOException e) {
             throw new ConfigException("Failed to save configuration to file: " + this.file.getAbsolutePath(), e);
@@ -120,7 +123,7 @@ public final class Config<T> {
 
             final var formattedName = this.parser.formatField(field.name());
 
-            out.put(formattedName, field.isNestedConfig()
+            out.put(formattedName, field.isNested()
                     ? this.saveSchema(field.nestedSchema())
                     : this.serializer.serializeValue(field.getValue(schema.instance()), field.genericType()));
         }
@@ -128,14 +131,21 @@ public final class Config<T> {
         return out;
     }
 
-    private void applyComments(final ConfigField field, final String formattedName) {
-        if(!this.parser.commentsSupported()) return;
+    private void registerComments(final ConfigSchema<?> schema, final String parentPath, final ConfigContext context) {
+        for (final var field : schema.fields()) {
+            final var path = this.parser.formatField(
+                    parentPath != null ? parentPath + "." + field.name() : field.name()
+            );
 
-        if(field.comments() != null)
-            this.context.comments().put(formattedName, field.comments());
+            if (field.comments() != null)
+                context.comments().put(path, field.comments());
 
-        if(field.inlineComment() != null)
-            this.context.inlineComments().put(formattedName, field.inlineComment());
+            if (field.inlineComment() != null)
+                context.inlineComments().put(path, field.inlineComment());
+
+            if (field.isNested())
+                this.registerComments(field.nestedSchema(), path, context);
+        }
     }
 
     public void reload() {
