@@ -78,9 +78,10 @@ public final class Config<T> {
                                 ? (Map<String, Object>) loadedValues.get(formattedName)
                                 : Map.of();
 
-                final var subWrite = this.loadSchema(field.nestedSchema(), subLoaded, write);
+                final var nestedSchema = field.nestedSchema(instance);
+                final var subWrite = this.loadSchema(nestedSchema, subLoaded, write);
 
-                field.setValue(instance, field.nestedSchema().instance());
+                field.setValue(instance, nestedSchema.instance());
 
                 if (write)
                     toWrite.put(formattedName, subWrite);
@@ -124,7 +125,7 @@ public final class Config<T> {
             final var formattedName = this.parser.formatField(field.name());
 
             out.put(formattedName, field.isNested()
-                    ? this.saveSchema(field.nestedSchema())
+                    ? this.saveSchema(field.nestedSchema(field.getValue(schema.instance())))
                     : this.serializer.serializeValue(field.getValue(schema.instance()), field.genericType()));
         }
 
@@ -144,7 +145,7 @@ public final class Config<T> {
                 context.inlineComments().put(path, field.inlineComment());
 
             if (field.isNested())
-                this.registerComments(field.nestedSchema(), path, context);
+                this.registerComments(field.nestedSchema(schema.instance()), path, context);
         }
     }
 

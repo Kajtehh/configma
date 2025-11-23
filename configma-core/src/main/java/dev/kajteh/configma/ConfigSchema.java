@@ -14,17 +14,17 @@ public final class ConfigSchema<T> {
     private final T instance;
     private final ConfigField[] fields;
 
-    private ConfigSchema(final Class<T> type, final T instance) {
-        this.instance = instance != null ? instance : this.createInstance(type);
+    private ConfigSchema(final Class<?> type, final T instance) {
+        this.instance = instance;
         this.fields = FIELD_CACHE.computeIfAbsent(type, this::scanFields);
     }
 
-    public static <T> ConfigSchema<T> of(final Class<T> type) {
-        return new ConfigSchema<>(type, null);
+    public static <T> ConfigSchema<T> of(final Class<T> type, final T instance) {
+        return new ConfigSchema<>(type, instance != null ? instance : createInstance(type));
     }
 
-    public static <T> ConfigSchema<T> of(final Class<T> type, final T instance) {
-        return new ConfigSchema<>(type, instance);
+    public static ConfigSchema<?> ofNested(final ConfigField field, final Object parentInstance) {
+        return new ConfigSchema<>(field.type(), field.getValue(parentInstance));
     }
 
     public T instance() {
@@ -43,7 +43,7 @@ public final class ConfigSchema<T> {
                 .toArray(ConfigField[]::new);
     }
 
-    private T createInstance(final Class<T> type) {
+    private static <T> T createInstance(final Class<T> type) {
         try {
             return type.getDeclaredConstructor().newInstance();
         } catch (final Exception e) {

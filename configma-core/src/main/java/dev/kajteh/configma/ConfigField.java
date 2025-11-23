@@ -1,14 +1,14 @@
 package dev.kajteh.configma;
 
 import dev.kajteh.configma.annotation.Nested;
-import dev.kajteh.configma.annotation.decoration.Comment;
-import dev.kajteh.configma.annotation.decoration.InlineComment;
+import dev.kajteh.configma.annotation.decoration.comment.Comment;
+import dev.kajteh.configma.annotation.decoration.comment.InlineComment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public record ConfigField(Field rawField, String name, Type genericType, Class<?> type, List<String> comments, String inlineComment, ConfigSchema<?> nestedSchema) {
+public record ConfigField(Field rawField, String name, Type genericType, Class<?> type, List<String> comments, String inlineComment, boolean isNested) {
 
     public static ConfigField of(final Field field) {
         field.setAccessible(true);
@@ -20,7 +20,7 @@ public record ConfigField(Field rawField, String name, Type genericType, Class<?
                 field.getType(),
                 field.isAnnotationPresent(Comment.class) ? List.of(field.getAnnotation(Comment.class).value()) : null,
                 field.isAnnotationPresent(InlineComment.class) ? field.getAnnotation(InlineComment.class).value() : null,
-                field.isAnnotationPresent(Nested.class) ? ConfigSchema.of(field.getType()) : null
+                field.isAnnotationPresent(Nested.class)
         );
     }
 
@@ -36,20 +36,16 @@ public record ConfigField(Field rawField, String name, Type genericType, Class<?
         return this.type;
     }
 
-    public boolean isNested() {
-        return this.nestedSchema != null;
-    }
-
-    public ConfigSchema<?> nestedSchema() {
-        return this.nestedSchema;
-    }
-
     public List<String> comments() {
         return this.comments;
     }
 
     public String inlineComment() {
         return this.inlineComment;
+    }
+
+    public ConfigSchema<?> nestedSchema(final Object parentInstance) {
+        return ConfigSchema.ofNested(this, parentInstance);
     }
 
     public Object getValue(final Object instance) {

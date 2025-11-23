@@ -2,6 +2,8 @@ package dev.kajteh.configma.example;
 
 import dev.kajteh.configma.annotation.*;
 import dev.kajteh.configma.annotation.decoration.*;
+import dev.kajteh.configma.annotation.decoration.comment.Comment;
+import dev.kajteh.configma.annotation.decoration.comment.InlineComment;
 import dev.kajteh.configma.example.user.User;
 
 import java.util.List;
@@ -50,7 +52,6 @@ public class ExampleConfig {
         @InlineComment("Lolol")
         public String user = "root";
 
-        @Comment("haso")
         public String password = "secret";
     }
 }

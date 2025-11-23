@@ -14,7 +14,6 @@ import java.util.Map;
 public class YamlConfigParser implements ConfigParser {
 
     private final Yaml yaml;
-    private static final String COMMENT_PREFIX = "# ";
 
     private YamlConfigParser() {
         final DumperOptions options = new DumperOptions();
@@ -48,9 +47,11 @@ public class YamlConfigParser implements ConfigParser {
     @Override
     public void write(Writer writer, Map<String, Object> values, ConfigContext context) {
         try {
+            final var commentPrefix = context.commentPrefix();
+
             if (context.header() != null) {
                 for (final var line : context.header())
-                    writer.write(COMMENT_PREFIX + line + System.lineSeparator());
+                    writer.write(commentPrefix + line + System.lineSeparator());
 
                 this.writeSpacing(context, writer);
             }
@@ -62,7 +63,7 @@ public class YamlConfigParser implements ConfigParser {
 
                 final var isRootField = !yamlLine.startsWith(" ") && !yamlLine.startsWith("-");
 
-                final var fieldName = this.extractFieldName(yamlLine);
+                final var fieldName = this.extractFieldName(commentPrefix, yamlLine);
                 if (isRootField && lastRootField != null && !lastRootField.equals(fieldName)) {
                     this.writeSpacing(context, writer);
                 }
@@ -81,7 +82,7 @@ public class YamlConfigParser implements ConfigParser {
                 this.writeSpacing(context, writer);
 
                 for (final var line : context.footer())
-                    writer.write(COMMENT_PREFIX + line + System.lineSeparator());
+                    writer.write(commentPrefix + line + System.lineSeparator());
             }
 
         } catch (final IOException e) {
@@ -99,13 +100,13 @@ public class YamlConfigParser implements ConfigParser {
         if (colon > 0) indent = yamlLine.substring(0, yamlLine.indexOf(yamlLine.trim())).replaceAll("[^ ]", "");
 
         for (final var comment : comments)
-            writer.write(indent + COMMENT_PREFIX + comment + System.lineSeparator());
+            writer.write(indent + context.commentPrefix() + comment + System.lineSeparator());
     }
 
     private void applyInlineComment(ConfigContext context, String field, Writer writer, String yamlLine) throws IOException {
         final var comment = context.inlineComments().get(field);
         if (comment != null) {
-            writer.write(yamlLine + " " + COMMENT_PREFIX + comment + System.lineSeparator());
+            writer.write(yamlLine + " " + context.commentPrefix() + comment + System.lineSeparator());
             return;
         }
 
@@ -117,11 +118,11 @@ public class YamlConfigParser implements ConfigParser {
             writer.write(System.lineSeparator());
     }
 
-    private String extractFieldName(String line) {
+    private String extractFieldName(String commentPrefix, String line) {
         if (line == null) return null;
         line = line.trim();
 
-        if (line.isEmpty() || line.startsWith(COMMENT_PREFIX.trim())) return null;
+        if (line.isEmpty() || line.startsWith(commentPrefix.trim())) return null;
 
         final int colon = line.indexOf(':');
         if (colon == -1) return null;
