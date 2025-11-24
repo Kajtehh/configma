@@ -10,11 +10,9 @@ public class ExampleMain {
 
     public static void main(String[] args) {
         var config = ConfigFactory.builder(ExampleConfig.class)
-                .file(Paths.get("test", "test.yml"))
                 .parser(YamlConfigParser.standard())
+                .file(Paths.get("test", "test.yml"))
                 .serializer(new UserSerializer())
                 .build();
-
-        config.get(c -> System.out.println(c.database.host));
     }
 }

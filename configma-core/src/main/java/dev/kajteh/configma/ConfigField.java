@@ -24,26 +24,6 @@ public record ConfigField(Field rawField, String name, Type genericType, Class<?
         );
     }
 
-    public String name() {
-        return this.name;
-    }
-
-    public Type genericType() {
-        return this.genericType;
-    }
-
-    public Class<?> type() {
-        return this.type;
-    }
-
-    public List<String> comments() {
-        return this.comments;
-    }
-
-    public String inlineComment() {
-        return this.inlineComment;
-    }
-
     public ConfigSchema<?> nestedSchema(final Object parentInstance) {
         return ConfigSchema.ofNested(this, parentInstance);
     }
