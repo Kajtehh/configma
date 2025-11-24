@@ -70,11 +70,11 @@ public final class Config<T> {
 
         for (final var field : schema.fields()) {
 
-            final var formattedName = this.parser.formatField(field.name());
+            final var formattedName = field.key().name(this.parser);
 
             if (field.isNested()) {
                 final Map<String, Object> subLoaded =
-                        loadedValues.containsKey(field.name())
+                        loadedValues.containsKey(formattedName)
                                 ? (Map<String, Object>) loadedValues.get(formattedName)
                                 : Map.of();
 
@@ -122,9 +122,7 @@ public final class Config<T> {
 
         for (final var field : schema.fields()) {
 
-            final var formattedName = this.parser.formatField(field.name());
-
-            out.put(formattedName, field.isNested()
+            out.put(field.key().name(this.parser), field.isNested()
                     ? this.saveSchema(field.nestedSchema(field.getValue(schema.instance())))
                     : this.serializer.serializeValue(field.getValue(schema.instance()), field.genericType()));
         }
@@ -134,8 +132,10 @@ public final class Config<T> {
 
     private void registerComments(final ConfigSchema<?> schema, final String parentPath, final ConfigContext context) {
         for (final var field : schema.fields()) {
+
+            final var rawName = field.key().rawName();
             final var path = this.parser.formatField(
-                    parentPath != null ? parentPath + "." + field.name() : field.name()
+                    parentPath != null ? parentPath + "." + rawName : rawName
             );
 
             if (field.comments() != null)
@@ -146,6 +146,7 @@ public final class Config<T> {
 
             if (field.isNested())
                 this.registerComments(field.nestedSchema(schema.instance()), path, context);
+
         }
     }
 

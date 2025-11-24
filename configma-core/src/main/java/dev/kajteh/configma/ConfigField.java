@@ -8,14 +8,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public record ConfigField(Field rawField, String name, Type genericType, Class<?> type, List<String> comments, String inlineComment, boolean isNested) {
+public record ConfigField(Field rawField, ConfigKey key, Type genericType, Class<?> type, List<String> comments, String inlineComment, boolean isNested) {
 
     public static ConfigField of(final Field field) {
         field.setAccessible(true);
 
         return new ConfigField(
                 field,
-                field.getName(),
+                ConfigKey.of(field),
                 field.getGenericType(),
                 field.getType(),
                 field.isAnnotationPresent(Comment.class) ? List.of(field.getAnnotation(Comment.class).value()) : null,
@@ -32,7 +32,7 @@ public record ConfigField(Field rawField, String name, Type genericType, Class<?
         try {
             return this.rawField.get(instance);
         } catch (final IllegalAccessException e) {
-            throw new ConfigException("Cannot read field " + name, e);
+            throw new ConfigException("Cannot read field " + this.key.rawName(), e);
         }
     }
 
@@ -47,7 +47,7 @@ public record ConfigField(Field rawField, String name, Type genericType, Class<?
 
             this.rawField.set(instance, value);
         } catch (final IllegalAccessException | IllegalArgumentException e) {
-            throw new ConfigException("Cannot set field " + name, e);
+            throw new ConfigException("Cannot set field " + this.key.rawName(), e);
         }
     }
 }

@@ -29,23 +29,23 @@ public class YamlConfigParser implements ConfigParser {
         return new YamlConfigParser();
     }
 
-    public static YamlConfigParser of(Yaml yaml) {
+    public static YamlConfigParser of(final Yaml yaml) {
         return new YamlConfigParser(yaml);
     }
 
     @Override
-    public String formatField(String name) {
+    public String formatField(final String name) {
         if (name == null || name.isEmpty()) return name;
         return name.replaceAll("([a-z])([A-Z])", "$1-$2").toLowerCase();
     }
 
     @Override
-    public Map<String, Object> load(Reader reader) {
+    public Map<String, Object> load(final Reader reader) {
         return this.yaml.load(reader);
     }
 
     @Override
-    public void write(Writer writer, Map<String, Object> values, ConfigContext context) {
+    public void write(final Writer writer, final Map<String, Object> values, final ConfigContext context) {
         try {
             final var commentPrefix = context.commentPrefix();
 
@@ -90,7 +90,7 @@ public class YamlConfigParser implements ConfigParser {
         }
     }
 
-    private void applyComments(ConfigContext context, String field, Writer writer, String yamlLine) throws IOException {
+    private void applyComments(final ConfigContext context, final String field, final Writer writer, final String yamlLine) throws IOException {
         final var comments = context.comments().get(field);
         if (comments == null) return;
 
@@ -103,7 +103,7 @@ public class YamlConfigParser implements ConfigParser {
             writer.write(indent + context.commentPrefix() + comment + System.lineSeparator());
     }
 
-    private void applyInlineComment(ConfigContext context, String field, Writer writer, String yamlLine) throws IOException {
+    private void applyInlineComment(final ConfigContext context, final String field, final Writer writer, final String yamlLine) throws IOException {
         final var comment = context.inlineComments().get(field);
         if (comment != null) {
             writer.write(yamlLine + " " + context.commentPrefix() + comment + System.lineSeparator());
@@ -113,12 +113,12 @@ public class YamlConfigParser implements ConfigParser {
         writer.write(yamlLine + System.lineSeparator());
     }
 
-    private void writeSpacing(ConfigContext context, Writer writer) throws IOException {
+    private void writeSpacing(final ConfigContext context, final Writer writer) throws IOException {
         for (int i = 0; i < context.spacing(); i++)
             writer.write(System.lineSeparator());
     }
 
-    private String extractFieldName(String commentPrefix, String line) {
+    private String extractFieldName(final String commentPrefix, String line) {
         if (line == null) return null;
         line = line.trim();
 

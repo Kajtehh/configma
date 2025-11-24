@@ -27,7 +27,7 @@ public class ExampleConfig {
     @InlineComment("Inline")
     public boolean productionMode = false;
 
-    @Comment("Users")
+    @Key(value = "usersTest", exact = true)
     public List<User> users = List.of(
             new User(
                     UUID.randomUUID(),
@@ -52,6 +52,6 @@ public class ExampleConfig {
         @InlineComment("Lolol")
         public String user = "root";
 
-        public String password = "secret";
+        public String password = "secrete";
     }
 }

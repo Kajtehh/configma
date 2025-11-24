@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 public class ExampleMain {
 
     public static void main(String[] args) {
-        var config = ConfigFactory.builder(ExampleConfig.class)
+        final var config = ConfigFactory.builder(ExampleConfig.class)
                 .parser(YamlConfigParser.standard())
                 .file(Paths.get("test", "test.yml"))
                 .serializer(new UserSerializer())
