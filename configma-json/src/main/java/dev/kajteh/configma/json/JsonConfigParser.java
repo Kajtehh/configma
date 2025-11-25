@@ -4,17 +4,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dev.kajteh.configma.ConfigContext;
-import dev.kajteh.configma.ConfigFormatter;
 import dev.kajteh.configma.ConfigParser;
 
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Map;
+import java.util.function.Function;
 
 public class JsonConfigParser implements ConfigParser {
 
     private final Gson gson;
-    private ConfigFormatter formatter = name -> name;
+    private Function<String, String> formatter = name -> name;
 
     public JsonConfigParser(final Gson gson) {
         this.gson = gson;
@@ -41,12 +41,12 @@ public class JsonConfigParser implements ConfigParser {
     }
 
     @Override
-    public ConfigFormatter formatter() {
+    public Function<String, String> formatter() {
         return this.formatter;
     }
 
     @Override
-    public ConfigParser withFormatter(final ConfigFormatter formatter) {
+    public ConfigParser withFormatter(final Function<String, String> formatter) {
         this.formatter = formatter;
         return this;
     }

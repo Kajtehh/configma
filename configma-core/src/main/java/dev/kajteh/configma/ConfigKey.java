@@ -3,6 +3,7 @@ package dev.kajteh.configma;
 import dev.kajteh.configma.annotation.Key;
 
 import java.lang.reflect.Field;
+import java.util.function.Function;
 
 public record ConfigKey(String rawName, boolean exact) {
 
@@ -17,7 +18,7 @@ public record ConfigKey(String rawName, boolean exact) {
         return new ConfigKey(keyName, annotation != null && annotation.exact());
     }
 
-    public String name(final ConfigFormatter formatter) {
-        return this.exact ? this.rawName : formatter.formatName(this.rawName);
+    public String name(final Function<String, String> formatter) {
+        return this.exact ? this.rawName : formatter.apply(this.rawName);
     }
 }

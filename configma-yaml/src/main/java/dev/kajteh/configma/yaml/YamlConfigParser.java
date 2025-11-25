@@ -2,7 +2,6 @@ package dev.kajteh.configma.yaml;
 
 import dev.kajteh.configma.ConfigContext;
 import dev.kajteh.configma.exception.ConfigException;
-import dev.kajteh.configma.ConfigFormatter;
 import dev.kajteh.configma.ConfigParser;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -11,11 +10,12 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Map;
+import java.util.function.Function;
 
 public class YamlConfigParser implements ConfigParser {
 
     private final Yaml yaml;
-    private ConfigFormatter formatter = name -> name.replaceAll("([a-z])([A-Z])", "$1-$2").toLowerCase();
+    private Function<String, String> formatter = name -> name.replaceAll("([a-z])([A-Z])", "$1-$2").toLowerCase();
 
     private YamlConfigParser() {
         final DumperOptions options = new DumperOptions();
@@ -87,12 +87,12 @@ public class YamlConfigParser implements ConfigParser {
     }
 
     @Override
-    public ConfigFormatter formatter() {
+    public Function<String, String> formatter() {
         return this.formatter;
     }
 
     @Override
-    public ConfigParser withFormatter(final ConfigFormatter formatter) {
+    public ConfigParser withFormatter(final Function<String, String> formatter) {
         this.formatter = formatter;
         return this;
     }

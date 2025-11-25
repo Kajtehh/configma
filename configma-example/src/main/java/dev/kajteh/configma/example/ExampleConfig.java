@@ -21,7 +21,7 @@ public class ExampleConfig {
 
     @Comment("Comment")
     @InlineComment("Inline")
-    @Key(exact = true)
+    @Key(value = "Key_ANNOTATION_test", exact = true)
     public boolean productionMode = false;
 
     @Nested

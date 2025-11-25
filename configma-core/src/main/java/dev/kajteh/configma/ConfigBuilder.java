@@ -49,7 +49,7 @@ public final class ConfigBuilder<T> {
         return this.file(new File(pathname));
     }
 
-    public ConfigBuilder<T> parser(final ConfigParser parser) {
+    public ConfigBuilder<T> format(final ConfigParser parser) {
         this.parser = parser;
         return this;
     }

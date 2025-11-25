@@ -2,13 +2,14 @@ package dev.kajteh.configma;
 
 import dev.kajteh.configma.exception.ConfigException;
 import dev.kajteh.configma.serialization.SerializationService;
+import dev.kajteh.configma.serialization.SerializerRegistry;
 import dev.kajteh.configma.serialization.serializer.Serializer;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 public final class Config<T> {
 
@@ -29,9 +30,10 @@ public final class Config<T> {
         this.parser = parser;
         this.schema = ConfigSchema.of(type, instance);
         this.context = ConfigContext.of(type);
-        this.serializer = new SerializationService(serializers);
+        this.serializer = new SerializationService(new SerializerRegistry(serializers));
 
-        this.registerComments(this.schema, null, this.context);
+        if(parser.commentsSupported())
+            this.registerComments(this.schema, null, this.context);
     }
 
     void load(final boolean write) {
@@ -70,10 +72,6 @@ public final class Config<T> {
         final var instance = schema.instance();
         final Map<String, Object> toWrite = write ? new LinkedHashMap<>() : null;
 
-        final var schemaFieldNames = Arrays.stream(schema.fields())
-                .map(f -> f.key().name(this.parser.formatter()))
-                .collect(Collectors.toSet());
-
         for (final var field : schema.fields()) {
 
             final var formattedName = field.key().name(this.parser.formatter());
@@ -111,12 +109,10 @@ public final class Config<T> {
     }
 
     public void save() {
-        final var toWrite = this.saveSchema(this.schema);
-
         try (final var writer = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8))) {
 
-            this.parser.write(writer, toWrite, this.context);
+            this.parser.write(writer, this.saveSchema(this.schema), this.context);
 
         } catch (final IOException e) {
             throw new ConfigException("Failed to save configuration to file: " + this.file.getAbsolutePath(), e);
@@ -127,7 +123,6 @@ public final class Config<T> {
         final Map<String, Object> out = new LinkedHashMap<>();
 
         for (final var field : schema.fields()) {
-
             out.put(field.key().name(this.parser.formatter()), field.isNested()
                     ? this.saveSchema(field.nestedSchema(field.getValue(schema.instance())))
                     : this.serializer.serializeValue(field.getValue(schema.instance()), field.genericType()));
@@ -140,7 +135,7 @@ public final class Config<T> {
         for (final var field : schema.fields()) {
 
             final var rawName = field.key().rawName();
-            final var path = this.parser.formatter().formatName(
+            final var path = this.parser.formatter().apply(
                     parentPath != null ? parentPath + "." + rawName : rawName
             );
 
@@ -152,7 +147,6 @@ public final class Config<T> {
 
             if (field.isNested())
                 this.registerComments(field.nestedSchema(schema.instance()), path, context);
-
         }
     }
 
