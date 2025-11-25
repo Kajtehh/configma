@@ -3,6 +3,7 @@ package dev.kajteh.configma;
 import dev.kajteh.configma.annotation.Nested;
 import dev.kajteh.configma.annotation.decoration.comment.Comment;
 import dev.kajteh.configma.annotation.decoration.comment.InlineComment;
+import dev.kajteh.configma.exception.ConfigFieldException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -32,7 +33,9 @@ public record ConfigField(Field rawField, ConfigKey key, Type genericType, Class
         try {
             return this.rawField.get(instance);
         } catch (final IllegalAccessException e) {
-            throw new ConfigException("Cannot read field " + this.key.rawName(), e);
+            throw new ConfigFieldException(
+                    "Cannot access field '" + this.key.rawName() + "' of type " + this.rawField.getType().getSimpleName(), e
+            );
         }
     }
 
@@ -47,7 +50,11 @@ public record ConfigField(Field rawField, ConfigKey key, Type genericType, Class
 
             this.rawField.set(instance, value);
         } catch (final IllegalAccessException | IllegalArgumentException e) {
-            throw new ConfigException("Cannot set field " + this.key.rawName(), e);
+            throw new ConfigFieldException(
+                    "Failed to set value for field '" + this.key().rawName() +
+                            "': expected type " + this.genericType() +
+                            ", got " + (value != null ? value.getClass() : "null"), e
+            );
         }
     }
 }

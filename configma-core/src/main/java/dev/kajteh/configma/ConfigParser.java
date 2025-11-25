@@ -7,10 +7,8 @@ import java.util.Map;
 public interface ConfigParser {
     Map<String, Object> load(final Reader reader);
     void write(final Writer writer, final Map<String, Object> values, final ConfigContext context);
-
-    default String formatField(final String name) {
-        return name;
-    }
+    ConfigFormatter formatter();
+    ConfigParser withFormatter(final ConfigFormatter formatter);
 
     default boolean commentsSupported() {
         return false;

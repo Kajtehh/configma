@@ -39,4 +39,8 @@ public class DeserializationContext {
     public <K, V> Map<K, V> getMap(final String key, final Class<K> keyType, final Class<V> valueType) {
         return this.get(key, GenericType.of(Map.class, keyType, valueType));
     }
+
+    public String getString(final String key) {
+        return this.get(key, String.class);
+    }
 }  

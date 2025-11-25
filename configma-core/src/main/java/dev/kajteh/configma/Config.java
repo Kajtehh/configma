@@ -1,5 +1,6 @@
 package dev.kajteh.configma;
 
+import dev.kajteh.configma.exception.ConfigException;
 import dev.kajteh.configma.serialization.SerializationService;
 import dev.kajteh.configma.serialization.serializer.Serializer;
 
@@ -7,6 +8,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public final class Config<T> {
 
@@ -68,9 +70,13 @@ public final class Config<T> {
         final var instance = schema.instance();
         final Map<String, Object> toWrite = write ? new LinkedHashMap<>() : null;
 
+        final var schemaFieldNames = Arrays.stream(schema.fields())
+                .map(f -> f.key().name(this.parser.formatter()))
+                .collect(Collectors.toSet());
+
         for (final var field : schema.fields()) {
 
-            final var formattedName = field.key().name(this.parser);
+            final var formattedName = field.key().name(this.parser.formatter());
 
             if (field.isNested()) {
                 final Map<String, Object> subLoaded =
@@ -122,7 +128,7 @@ public final class Config<T> {
 
         for (final var field : schema.fields()) {
 
-            out.put(field.key().name(this.parser), field.isNested()
+            out.put(field.key().name(this.parser.formatter()), field.isNested()
                     ? this.saveSchema(field.nestedSchema(field.getValue(schema.instance())))
                     : this.serializer.serializeValue(field.getValue(schema.instance()), field.genericType()));
         }
@@ -134,7 +140,7 @@ public final class Config<T> {
         for (final var field : schema.fields()) {
 
             final var rawName = field.key().rawName();
-            final var path = this.parser.formatField(
+            final var path = this.parser.formatter().formatName(
                     parentPath != null ? parentPath + "." + rawName : rawName
             );
 

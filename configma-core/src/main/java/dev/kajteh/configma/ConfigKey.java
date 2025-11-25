@@ -17,7 +17,7 @@ public record ConfigKey(String rawName, boolean exact) {
         return new ConfigKey(keyName, annotation != null && annotation.exact());
     }
 
-    public String name(final ConfigParser parser) {
-        return this.exact ? this.rawName : parser.formatField(this.rawName);
+    public String name(final ConfigFormatter formatter) {
+        return this.exact ? this.rawName : formatter.formatName(this.rawName);
     }
 }

@@ -1,6 +1,7 @@
 package dev.kajteh.configma;
 
 import dev.kajteh.configma.annotation.*;
+import dev.kajteh.configma.exception.ConfigException;
 
 import java.lang.reflect.Modifier;
 import java.util.Arrays;

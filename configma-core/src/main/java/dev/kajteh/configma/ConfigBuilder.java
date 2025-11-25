@@ -1,5 +1,6 @@
 package dev.kajteh.configma;
 
+import dev.kajteh.configma.exception.ConfigException;
 import dev.kajteh.configma.serialization.serializer.Serializer;
 import dev.kajteh.configma.serialization.serializer.builtin.InstantSerializer;
 import dev.kajteh.configma.serialization.serializer.builtin.UUIDSerializer;
@@ -23,6 +24,7 @@ public final class ConfigBuilder<T> {
     private T instance;
     private ConfigParser parser;
     private File file;
+    //private boolean removeOrphans; TODO: 11/24/2025
     private boolean autoLoad = true;
 
     public ConfigBuilder(final Class<T> type) {
@@ -56,6 +58,11 @@ public final class ConfigBuilder<T> {
         this.additionalSerializers.addAll(List.of(serializers));
         return this;
     }
+
+//    public ConfigBuilder<T> removeOrphans(final boolean removeOrphans) {
+//        this.removeOrphans = removeOrphans;
+//        return this;
+//    }
 
     public ConfigBuilder<T> autoLoad(final boolean autoLoad) {
         this.autoLoad = autoLoad;

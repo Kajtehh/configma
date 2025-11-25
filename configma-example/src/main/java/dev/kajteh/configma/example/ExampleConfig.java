@@ -4,10 +4,6 @@ import dev.kajteh.configma.annotation.*;
 import dev.kajteh.configma.annotation.decoration.*;
 import dev.kajteh.configma.annotation.decoration.comment.Comment;
 import dev.kajteh.configma.annotation.decoration.comment.InlineComment;
-import dev.kajteh.configma.example.user.User;
-
-import java.util.List;
-import java.util.UUID;
 
 @Spacing(1)
 @Header({
@@ -25,16 +21,8 @@ public class ExampleConfig {
 
     @Comment("Comment")
     @InlineComment("Inline")
+    @Key(exact = true)
     public boolean productionMode = false;
-
-    @Key(value = "usersTest", exact = true)
-    public List<User> users = List.of(
-            new User(
-                    UUID.randomUUID(),
-                    "Kajteh",
-                    "me@kajteh.dev"
-            )
-    );
 
     @Nested
     @Comment({"Database", "testtesttt"})

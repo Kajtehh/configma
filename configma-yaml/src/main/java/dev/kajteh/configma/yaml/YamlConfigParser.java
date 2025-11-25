@@ -1,7 +1,8 @@
 package dev.kajteh.configma.yaml;
 
 import dev.kajteh.configma.ConfigContext;
-import dev.kajteh.configma.ConfigException;
+import dev.kajteh.configma.exception.ConfigException;
+import dev.kajteh.configma.ConfigFormatter;
 import dev.kajteh.configma.ConfigParser;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class YamlConfigParser implements ConfigParser {
 
     private final Yaml yaml;
+    private ConfigFormatter formatter = name -> name.replaceAll("([a-z])([A-Z])", "$1-$2").toLowerCase();
 
     private YamlConfigParser() {
         final DumperOptions options = new DumperOptions();
@@ -31,12 +33,6 @@ public class YamlConfigParser implements ConfigParser {
 
     public static YamlConfigParser of(final Yaml yaml) {
         return new YamlConfigParser(yaml);
-    }
-
-    @Override
-    public String formatField(final String name) {
-        if (name == null || name.isEmpty()) return name;
-        return name.replaceAll("([a-z])([A-Z])", "$1-$2").toLowerCase();
     }
 
     @Override
@@ -88,6 +84,17 @@ public class YamlConfigParser implements ConfigParser {
         } catch (final IOException e) {
             throw new ConfigException("Failed to write configuration with decorations", e);
         }
+    }
+
+    @Override
+    public ConfigFormatter formatter() {
+        return this.formatter;
+    }
+
+    @Override
+    public ConfigParser withFormatter(final ConfigFormatter formatter) {
+        this.formatter = formatter;
+        return this;
     }
 
     private void applyComments(final ConfigContext context, final String field, final Writer writer, final String yamlLine) throws IOException {

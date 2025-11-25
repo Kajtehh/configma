@@ -1,4 +1,4 @@
-package dev.kajteh.configma;
+package dev.kajteh.configma.exception;
 
 public class ConfigException extends RuntimeException {
 
