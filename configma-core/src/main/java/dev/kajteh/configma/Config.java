@@ -134,10 +134,8 @@ public final class Config<T> {
     private void registerComments(final ConfigSchema<?> schema, final String parentPath, final ConfigContext context) {
         for (final var field : schema.fields()) {
 
-            final var rawName = field.key().rawName();
-            final var path = this.parser.formatter().apply(
-                    parentPath != null ? parentPath + "." + rawName : rawName
-            );
+            final var name = field.key().name(this.parser.formatter());
+            final var path = parentPath != null ? parentPath + "." + name : name;
 
             if (field.comments() != null)
                 context.comments().put(path, field.comments());
