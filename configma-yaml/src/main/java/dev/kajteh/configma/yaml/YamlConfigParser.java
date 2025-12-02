@@ -23,7 +23,7 @@ public class YamlConfigParser implements ConfigParser {
         this.yaml = new Yaml(options);
     }
 
-    private YamlConfigParser(Yaml yaml) {
+    private YamlConfigParser(final Yaml yaml) {
         this.yaml = yaml;
     }
 
@@ -86,17 +86,6 @@ public class YamlConfigParser implements ConfigParser {
         }
     }
 
-    @Override
-    public Function<String, String> formatter() {
-        return this.formatter;
-    }
-
-    @Override
-    public ConfigParser withFormatter(final Function<String, String> formatter) {
-        this.formatter = formatter;
-        return this;
-    }
-
     private void applyComments(final ConfigContext context, final String field, final Writer writer, final String yamlLine) throws IOException {
         final var comments = context.comments().get(field);
         if (comments == null) return;
@@ -135,6 +124,17 @@ public class YamlConfigParser implements ConfigParser {
         if (colon == -1) return null;
 
         return line.substring(0, colon).trim();
+    }
+
+    @Override
+    public Function<String, String> formatter() {
+        return this.formatter;
+    }
+
+    @Override
+    public ConfigParser withFormatter(final Function<String, String> formatter) {
+        this.formatter = formatter;
+        return this;
     }
 
     @Override

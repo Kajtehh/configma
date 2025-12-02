@@ -28,14 +28,6 @@ public final class ConfigSchema<T> {
         return new ConfigSchema<>(field.type(), field.getValue(parentInstance));
     }
 
-    public T instance() {
-        return this.instance;
-    }
-
-    public ConfigField[] fields() {
-        return this.fields;
-    }
-
     private ConfigField[] scanFields(final Class<?> type) {
         return Arrays.stream(type.getDeclaredFields())
                 .filter(f -> !Modifier.isStatic(f.getModifiers()) && !Modifier.isTransient(f.getModifiers()) && !Modifier.isFinal(f.getModifiers()))
@@ -50,5 +42,13 @@ public final class ConfigSchema<T> {
         } catch (final Exception e) {
             throw new ConfigException("Cannot create config instance: " + type.getName(), e);
         }
+    }
+
+    public T instance() {
+        return this.instance;
+    }
+
+    public ConfigField[] fields() {
+        return this.fields;
     }
 }

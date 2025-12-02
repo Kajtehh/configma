@@ -8,17 +8,36 @@ import dev.kajteh.configma.annotation.decoration.Spacing;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public record ConfigContext(List<String> header, List<String> footer, int spacing, String commentPrefix, Map<String, List<String>> comments, Map<String, String> inlineComments) {
+
+    private final static int DEFAULT_SPACING = 1;
 
     public static ConfigContext of(final Class<?> type) {
         return new ConfigContext(
                 type.isAnnotationPresent(Header.class) ? List.of(type.getAnnotation(Header.class).value()) : null,
                 type.isAnnotationPresent(Footer.class) ? List.of(type.getAnnotation(Footer.class).value()) : null,
-                type.isAnnotationPresent(Spacing.class) ? type.getAnnotation(Spacing.class).value() : 1,
-                type.isAnnotationPresent(CommentPrefix.class) ? type.getAnnotation(CommentPrefix.class).value() : "# ",
+                type.isAnnotationPresent(Spacing.class) ? type.getAnnotation(Spacing.class).value() : DEFAULT_SPACING,
+                type.isAnnotationPresent(CommentPrefix.class) ? type.getAnnotation(CommentPrefix.class).value() : null,
                 new HashMap<>(),
                 new HashMap<>()
         );
+    }
+
+    public void registerComments(final ConfigSchema<?> schema, final Function<String, String> formatter, final String parentPath) {
+        for (final var field : schema.fields()) {
+            final var name = field.key().name(formatter);
+            final var path = parentPath != null ? parentPath + "." + name : name;
+
+            if (field.comments() != null)
+                this.comments.put(path, field.comments());
+
+            if (field.inlineComment() != null)
+                this.inlineComments.put(path, field.inlineComment());
+
+            if (field.isNested())
+                this.registerComments(field.nestedSchema(schema.instance()), formatter, path);
+        }
     }
 }

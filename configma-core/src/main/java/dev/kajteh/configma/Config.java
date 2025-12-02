@@ -9,7 +9,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public final class Config<T> {
 
@@ -32,8 +31,8 @@ public final class Config<T> {
         this.context = ConfigContext.of(type);
         this.serializer = new SerializationService(new SerializerRegistry(serializers));
 
-        if(parser.commentsSupported())
-            this.registerComments(this.schema, null, this.context);
+        if(this.parser.commentsSupported())
+            this.context.registerComments(this.schema, this.parser.formatter(), null);
     }
 
     void load(final boolean write) {
@@ -49,18 +48,10 @@ public final class Config<T> {
             throw new ConfigException("Failed to load configuration file: " + this.file.getAbsolutePath(), e);
         }
 
-        final var toWrite = this.loadSchema(this.schema, loadedValues, write);
+        final var formattedValues = this.loadSchema(this.schema, loadedValues, write);
 
-        if (write && !toWrite.isEmpty()) {
-            try (final var writer = new BufferedWriter(
-                    new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8))) {
-
-                this.parser.write(writer, toWrite, this.context);
-
-            } catch (final IOException e) {
-                throw new ConfigException("Failed to write configuration file: " + this.file.getAbsolutePath(), e);
-            }
-        }
+        if (write)
+            this.writeValues(formattedValues);
     }
 
     @SuppressWarnings("unchecked")
@@ -70,7 +61,7 @@ public final class Config<T> {
             final boolean write
     ) {
         final var instance = schema.instance();
-        final Map<String, Object> toWrite = write ? new LinkedHashMap<>() : null;
+        final Map<String, Object> formattedValues = write ? new LinkedHashMap<>() : null;
 
         for (final var field : schema.fields()) {
 
@@ -88,7 +79,7 @@ public final class Config<T> {
                 field.setValue(instance, nestedSchema.instance());
 
                 if (write)
-                    toWrite.put(formattedName, subWrite);
+                    formattedValues.put(formattedName, subWrite);
 
                 continue;
             }
@@ -102,21 +93,14 @@ public final class Config<T> {
             field.setValue(instance, value);
 
             if (write)
-                toWrite.put(formattedName, this.serializer.serializeValue(value, field.genericType()));
+                formattedValues.put(formattedName, this.serializer.serializeValue(value, field.genericType()));
         }
 
-        return toWrite;
+        return formattedValues;
     }
 
     public void save() {
-        try (final var writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8))) {
-
-            this.parser.write(writer, this.saveSchema(this.schema), this.context);
-
-        } catch (final IOException e) {
-            throw new ConfigException("Failed to save configuration to file: " + this.file.getAbsolutePath(), e);
-        }
+        this.writeValues(this.saveSchema(this.schema));
     }
 
     private Map<String, Object> saveSchema(final ConfigSchema<?> schema) {
@@ -131,20 +115,16 @@ public final class Config<T> {
         return out;
     }
 
-    private void registerComments(final ConfigSchema<?> schema, final String parentPath, final ConfigContext context) {
-        for (final var field : schema.fields()) {
+    private void writeValues(final Map<String, Object> values) {
+        if(values.isEmpty()) return;
 
-            final var name = field.key().name(this.parser.formatter());
-            final var path = parentPath != null ? parentPath + "." + name : name;
+        try (final var writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8))) {
 
-            if (field.comments() != null)
-                context.comments().put(path, field.comments());
+            this.parser.write(writer, values, this.context);
 
-            if (field.inlineComment() != null)
-                context.inlineComments().put(path, field.inlineComment());
-
-            if (field.isNested())
-                this.registerComments(field.nestedSchema(schema.instance()), path, context);
+        } catch (final IOException e) {
+            throw new ConfigException("Failed to write configuration values from: " + this.file.getAbsolutePath(), e);
         }
     }
 
