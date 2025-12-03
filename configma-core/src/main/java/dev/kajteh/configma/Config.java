@@ -3,7 +3,6 @@ package dev.kajteh.configma;
 import dev.kajteh.configma.exception.ConfigException;
 import dev.kajteh.configma.schema.ConfigSchema;
 import dev.kajteh.configma.serialization.SerializationService;
-import dev.kajteh.configma.serialization.SerializerRegistry;
 import dev.kajteh.configma.serialization.serializer.Serializer;
 
 import java.io.*;
@@ -28,9 +27,11 @@ public final class Config<T> {
     ) {
         this.file = file;
         this.parser = parser;
+
         this.schema = ConfigSchema.of(type, instance);
         this.context = ConfigContext.of(type);
-        this.serializer = new SerializationService(new SerializerRegistry(serializers));
+
+        this.serializer = new SerializationService(serializers);
 
         if(this.parser.commentsSupported())
             this.context.registerComments(this.schema, this.parser.formatter(), null);

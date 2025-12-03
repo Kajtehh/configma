@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class SerializationContext {
+public final class SerializationContext {
 
     private final Map<String, Object> values = new LinkedHashMap<>();
     private final SerializationService serializationService;

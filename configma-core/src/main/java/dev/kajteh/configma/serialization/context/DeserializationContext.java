@@ -7,7 +7,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
-public class DeserializationContext {
+public final class DeserializationContext {
 
     private final SerializationService serializationService;
     private final Map<String, Object> values;

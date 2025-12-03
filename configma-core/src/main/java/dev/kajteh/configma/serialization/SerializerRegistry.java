@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SerializerRegistry {
+public final class SerializerRegistry {
 
     private final List<Serializer<?, ?>> serializers;
     private final Map<Class<?>, Serializer<?, ?>> serializerCache = new ConcurrentHashMap<>();

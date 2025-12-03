@@ -3,6 +3,7 @@ package dev.kajteh.configma.serialization;
 import dev.kajteh.configma.exception.ConfigException;
 import dev.kajteh.configma.serialization.context.DeserializationContext;
 import dev.kajteh.configma.serialization.context.SerializationContext;
+import dev.kajteh.configma.serialization.serializer.Serializer;
 import dev.kajteh.configma.serialization.util.TypeUtil;
 import dev.kajteh.configma.serialization.converter.CollectionConverter;
 import dev.kajteh.configma.serialization.converter.MapConverter;
@@ -22,8 +23,8 @@ public final class SerializationService {
     private final MapConverter mapConverter = new MapConverter(this);
     private final CollectionConverter collectionConverter = new CollectionConverter(this);
 
-    public SerializationService(final SerializerRegistry serializerRegistry) {
-        this.serializerRegistry = serializerRegistry;
+    public SerializationService(final List<Serializer<?, ?>> serializers) {
+        this.serializerRegistry = new SerializerRegistry(serializers);
     }
 
     public <T> Object serializeValue(
