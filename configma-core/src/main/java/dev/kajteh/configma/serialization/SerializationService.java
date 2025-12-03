@@ -4,7 +4,6 @@ import dev.kajteh.configma.exception.ConfigException;
 import dev.kajteh.configma.serialization.context.DeserializationContext;
 import dev.kajteh.configma.serialization.context.SerializationContext;
 import dev.kajteh.configma.serialization.serializer.Serializer;
-import dev.kajteh.configma.serialization.util.TypeUtil;
 import dev.kajteh.configma.serialization.converter.CollectionConverter;
 import dev.kajteh.configma.serialization.converter.MapConverter;
 import dev.kajteh.configma.serialization.serializer.ObjectSerializer;
@@ -33,7 +32,7 @@ public final class SerializationService {
     ) {
         if (value == null) return null;
 
-        final var serializer = this.serializerRegistry.findSerializer(TypeUtil.rawType(type));
+        final var serializer = this.serializerRegistry.findSerializer(rawType(type));
 
         if(serializer != null) {
             return switch (serializer) {
@@ -68,7 +67,7 @@ public final class SerializationService {
     ) {
         if (raw == null) return null;
 
-        final var rawType = TypeUtil.rawType(type);
+        final var rawType = rawType(type);
 
         if (rawType.isEnum() && raw instanceof String s) {
             return (T) Enum.valueOf(rawType.asSubclass(Enum.class), s);
