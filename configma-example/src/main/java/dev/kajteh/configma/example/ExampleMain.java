@@ -1,17 +1,18 @@
 package dev.kajteh.configma.example;
 
 import dev.kajteh.configma.ConfigFactory;
-import dev.kajteh.configma.yaml.YamlConfigParser;
+import dev.kajteh.configma.json.JsonConfigParser;
 
 import java.nio.file.Paths;
 
 public class ExampleMain {
 
     public static void main(String[] args) {
-        ConfigFactory.builder(ExampleConfig.class)
-                .format(YamlConfigParser.standard()
-                        .withFormatter(name -> name.replaceAll("([a-z0-9])([A-Z])", "$1_$2").toUpperCase()))
-                .file(Paths.get("test", "cfg.yml"))
+        var config = ConfigFactory.builder(ExampleConfig.class)
+                .format(JsonConfigParser.standard())
+                .file(Paths.get("test", "cfg.json"))
                 .build();
+
+        System.out.println(config.get().testList);
     }
 }

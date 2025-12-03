@@ -10,11 +10,7 @@
         <version>1.0.15-SNAPSHOT</version>
     </parent>
 
-    <artifactId>configma-example</artifactId>
-
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-    </properties>
+    <artifactId>configma-xml</artifactId>
 
     <dependencies>
         <dependency>
@@ -23,19 +19,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>configma-xml</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>configma-yaml</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>configma-json</artifactId>
-            <version>${project.version}</version>
+            <groupId>tools.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>3.0.3</version>
         </dependency>
     </dependencies>
 </project>

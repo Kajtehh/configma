@@ -24,8 +24,8 @@ public final class SerializationService {
 
         if(serializer != null)
             return switch (serializer) {
-                case final TypeSerializer<?, ?> typeSerializer -> asTypeSerializer(typeSerializer).serialize(value);
-                case final ObjectSerializer<?> objectSerializer -> {
+                case TypeSerializer<?, ?> typeSerializer -> asTypeSerializer(typeSerializer).serialize(value);
+                case ObjectSerializer<?> objectSerializer -> {
                     final var context = new SerializationContext(this);
                     asObjectSerializer(objectSerializer).serialize(context, value);
                     yield context.values();
@@ -34,9 +34,9 @@ public final class SerializationService {
             };
 
         return switch (value) {
-            case final Enum<?> e -> e.name();
-            case final Collection<?> collection -> this.serializeCollection(collection, getTypeArgument(type, 0));
-            case final Map<?, ?> map -> this.serializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
+            case Enum<?> e -> e.name();
+            case Collection<?> collection -> this.serializeCollection(collection, getTypeArgument(type, 0));
+            case Map<?, ?> map -> this.serializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
             default -> value;
         };
     }
@@ -55,17 +55,18 @@ public final class SerializationService {
 
         if(serializer != null)
             return (T) switch (serializer) {
-                case final TypeSerializer<?, ?> typeSerializer -> asTypeSerializer(typeSerializer).deserialize(raw);
-                case final ObjectSerializer<?> objectSerializer when raw instanceof Map<?, ?> map -> asObjectSerializer(objectSerializer).deserialize(
+                case TypeSerializer<?, ?> typeSerializer -> asTypeSerializer(typeSerializer).deserialize(raw);
+                case ObjectSerializer<?> objectSerializer when raw instanceof Map<?, ?> map -> asObjectSerializer(objectSerializer).deserialize(
                         new DeserializationContext(this, (Map<String, Object>) map)
                 );
                 default -> throw new ConfigException("Unsupported serializer type: " + serializer.getClass());
             };
 
         return (T) switch (raw) {
-            case final Collection<?> collection -> this.deserializeCollection(collection, getTypeArgument(type, 0), rawType);
-            case final Map<?, ?> map -> this.deserializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
-            case final Number number -> this.convertNumber(number, rawType);
+            case Collection<?> collection -> this.deserializeCollection(collection, getTypeArgument(type, 0), rawType);
+            case Map<?, ?> map -> this.deserializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
+            case Number number -> this.convertNumber(number, rawType);
+            case String s -> this.handleString(s, rawType);
             default -> raw;
         };
     }
@@ -130,11 +131,21 @@ public final class SerializationService {
         return result;
     }
 
+    private Object handleString(final String s, final Class<?> rawType) {
+        if (rawType == boolean.class || rawType == Boolean.class) return Boolean.valueOf(s);
+        if (rawType == int.class || rawType == Integer.class) return Integer.valueOf(s);
+        if (rawType == long.class || rawType == Long.class) return Long.valueOf(s);
+        if (rawType == float.class || rawType == Float.class) return Float.valueOf(s);
+        if (rawType == double.class || rawType == Double.class) return Double.valueOf(s);
+        return s;
+    }
+
     private Object convertNumber(final Number number, final Class<?> rawType) {
         if (rawType == int.class || rawType == Integer.class) return number.intValue();
         if (rawType == long.class || rawType == Long.class) return number.longValue();
         if (rawType == float.class || rawType == Float.class) return number.floatValue();
         if (rawType == double.class || rawType == Double.class) return number.doubleValue();
+        if (rawType == short.class || rawType == Short.class) return number.shortValue();
         return number;
     }
 }

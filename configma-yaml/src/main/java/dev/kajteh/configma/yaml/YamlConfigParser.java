@@ -6,16 +6,17 @@ import dev.kajteh.configma.ConfigParser;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 public class YamlConfigParser implements ConfigParser {
 
     private final Yaml yaml;
-    private Function<String, String> formatter = name -> name.replaceAll("([a-z])([A-Z])", "$1-$2").toLowerCase();
+    private Function<String, String> formatter = name -> name
+            .replaceAll("([a-z])([A-Z])", "$1-$2")
+            .toLowerCase();
 
     private YamlConfigParser() {
         final DumperOptions options = new DumperOptions();
@@ -36,7 +37,7 @@ public class YamlConfigParser implements ConfigParser {
     }
 
     @Override
-    public Map<String, Object> load(final Reader reader) {
+    public Map<String, Object> load(final Reader reader, final ConfigContext context) {
         return this.yaml.load(reader);
     }
 
@@ -82,7 +83,7 @@ public class YamlConfigParser implements ConfigParser {
             }
 
         } catch (final IOException e) {
-            throw new ConfigException("Failed to write configuration with decorations", e);
+            throw new ConfigException("Failed to write yaml configuration with decorations", e);
         }
     }
 

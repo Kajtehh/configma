@@ -41,7 +41,7 @@ public final class Config<T> {
         try (final var reader = new BufferedReader(
                 new InputStreamReader(new FileInputStream(this.file), StandardCharsets.UTF_8))) {
 
-            loadedValues = Optional.ofNullable(this.parser.load(reader))
+            loadedValues = Optional.ofNullable(this.parser.load(reader, this.context))
                     .orElseGet(LinkedHashMap::new);
 
         } catch (final IOException e) {

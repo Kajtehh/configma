@@ -10,12 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public record ConfigContext(List<String> header, List<String> footer, int spacing, String commentPrefix, Map<String, List<String>> comments, Map<String, String> inlineComments) {
+public record ConfigContext(Class<?> type, List<String> header, List<String> footer, int spacing, String commentPrefix, Map<String, List<String>> comments, Map<String, String> inlineComments) {
 
     private final static int DEFAULT_SPACING = 1;
 
     public static ConfigContext of(final Class<?> type) {
         return new ConfigContext(
+                type,
                 type.isAnnotationPresent(Header.class) ? List.of(type.getAnnotation(Header.class).value()) : null,
                 type.isAnnotationPresent(Footer.class) ? List.of(type.getAnnotation(Footer.class).value()) : null,
                 type.isAnnotationPresent(Spacing.class) ? type.getAnnotation(Spacing.class).value() : DEFAULT_SPACING,

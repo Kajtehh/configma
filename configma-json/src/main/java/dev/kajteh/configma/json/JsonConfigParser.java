@@ -14,20 +14,16 @@ import java.util.function.Function;
 public class JsonConfigParser implements ConfigParser {
 
     private final Gson gson;
-    private Function<String, String> formatter = name -> name;
+    private Function<String, String> formatter = Function.identity();
 
-    public JsonConfigParser(final Gson gson) {
+    private JsonConfigParser(final Gson gson) {
         this.gson = gson;
     }
 
-    public JsonConfigParser() {
-        this(new GsonBuilder()
+    public static JsonConfigParser standard() {
+        return new JsonConfigParser(new GsonBuilder()
                 .setPrettyPrinting()
                 .create());
-    }
-
-    public static JsonConfigParser standard() {
-        return new JsonConfigParser();
     }
 
     public static JsonConfigParser of(final Gson gson) {
@@ -35,7 +31,7 @@ public class JsonConfigParser implements ConfigParser {
     }
 
     @Override
-    public Map<String, Object> load(final Reader reader) {
+    public Map<String, Object> load(final Reader reader, final ConfigContext context) {
         return this.gson.fromJson(reader, new TypeToken<Map<String, Object>>() {}.getType());
     }
 
