@@ -1,6 +1,7 @@
-package dev.kajteh.configma.serialization;
+package dev.kajteh.configma.serialization.context;
 
-import dev.kajteh.configma.serialization.helper.GenericType;
+import dev.kajteh.configma.serialization.SerializationService;
+import dev.kajteh.configma.serialization.util.GenericType;
 
 import java.lang.reflect.Type;
 import java.util.List;

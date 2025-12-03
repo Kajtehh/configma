@@ -1,4 +1,4 @@
-package dev.kajteh.configma;
+package dev.kajteh.configma.schema;
 
 import dev.kajteh.configma.annotation.Nested;
 import dev.kajteh.configma.annotation.decoration.comment.Comment;

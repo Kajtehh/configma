@@ -1,4 +1,4 @@
-package dev.kajteh.configma;
+package dev.kajteh.configma.schema;
 
 import dev.kajteh.configma.annotation.*;
 import dev.kajteh.configma.exception.ConfigException;

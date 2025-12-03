@@ -4,6 +4,7 @@ import dev.kajteh.configma.annotation.decoration.comment.CommentPrefix;
 import dev.kajteh.configma.annotation.decoration.Footer;
 import dev.kajteh.configma.annotation.decoration.Header;
 import dev.kajteh.configma.annotation.decoration.Spacing;
+import dev.kajteh.configma.schema.ConfigSchema;
 
 import java.util.HashMap;
 import java.util.List;

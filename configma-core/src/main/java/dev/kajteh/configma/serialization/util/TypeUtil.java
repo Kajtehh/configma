@@ -1,4 +1,4 @@
-package dev.kajteh.configma.serialization.helper;
+package dev.kajteh.configma.serialization.util;
 
 import dev.kajteh.configma.serialization.serializer.ObjectSerializer;
 import dev.kajteh.configma.serialization.serializer.Serializer;
@@ -14,12 +14,14 @@ public final class TypeUtil {
     public static Class<?> rawType(final Type type) {
         if (type instanceof Class<?> c) return c;
         if (type instanceof ParameterizedType pt) return (Class<?>) pt.getRawType();
+
         return Object.class;
     }
 
     public static Type typeArgument(final Type type, final int index) {
         if (type instanceof ParameterizedType pt && pt.getActualTypeArguments().length > index)
             return pt.getActualTypeArguments()[index];
+
         return Object.class;
     }
 

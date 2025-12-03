@@ -1,7 +1,7 @@
 package dev.kajteh.configma.serialization.serializer;
 
-import dev.kajteh.configma.serialization.SerializationContext;
-import dev.kajteh.configma.serialization.DeserializationContext;
+import dev.kajteh.configma.serialization.context.SerializationContext;
+import dev.kajteh.configma.serialization.context.DeserializationContext;
 
 import java.util.Map;
 

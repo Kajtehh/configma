@@ -1,6 +1,7 @@
 package dev.kajteh.configma;
 
 import dev.kajteh.configma.exception.ConfigException;
+import dev.kajteh.configma.schema.ConfigSchema;
 import dev.kajteh.configma.serialization.SerializationService;
 import dev.kajteh.configma.serialization.SerializerRegistry;
 import dev.kajteh.configma.serialization.serializer.Serializer;

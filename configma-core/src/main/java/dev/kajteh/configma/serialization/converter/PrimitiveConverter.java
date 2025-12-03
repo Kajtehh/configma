@@ -1,10 +1,13 @@
-package dev.kajteh.configma.serialization.helper;
+package dev.kajteh.configma.serialization.converter;
 
 public final class PrimitiveConverter {
 
     private PrimitiveConverter() {}
 
-    public static Object convertString(final String s, final Class<?> rawType) {
+    public static Object convertString(
+            final String s,
+            final Class<?> rawType
+    ) {
         if (rawType == boolean.class || rawType == Boolean.class) return Boolean.valueOf(s);
 
         if (rawType == int.class || rawType == Integer.class) return Integer.valueOf(s);

@@ -21,15 +21,9 @@ import java.util.List;
 @Footer("Footer")
 public class ExampleConfig {
 
-    @Comment("Comment")
-    @InlineComment("Inline")
-    @Key(value = "Key_ANNOTATION_test", exact = true)
-    public boolean productionMode = false;
-
     public List<String> testList = List.of("test1", "test2", "test3");
 
     @Nested
-    @Comment({"Database", "testtesttt"})
     public DatabaseConfig database = new DatabaseConfig();
 
     public static class DatabaseConfig {
