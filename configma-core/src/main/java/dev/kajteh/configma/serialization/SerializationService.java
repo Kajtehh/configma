@@ -1,6 +1,8 @@
 package dev.kajteh.configma.serialization;
 
 import dev.kajteh.configma.exception.ConfigException;
+import dev.kajteh.configma.serialization.helper.PrimitiveConverter;
+import dev.kajteh.configma.serialization.helper.TypeUtil;
 import dev.kajteh.configma.serialization.serializer.ObjectSerializer;
 import dev.kajteh.configma.serialization.serializer.Serializer;
 import dev.kajteh.configma.serialization.serializer.TypeSerializer;
@@ -20,14 +22,16 @@ public final class SerializationService {
     public <T> Object serializeValue(final T value, final Type type) {
         if (value == null) return null;
 
-        final var serializer = this.serializerRegistry.findSerializer(getRawType(type));
+        final var serializer = this.serializerRegistry.findSerializer(TypeUtil.rawType(type));
 
         if(serializer != null)
             return switch (serializer) {
-                case TypeSerializer<?, ?> typeSerializer -> asTypeSerializer(typeSerializer).serialize(value);
+                case TypeSerializer<?, ?> typeSerializer -> TypeUtil.asTypeSerializer(typeSerializer).serialize(value);
                 case ObjectSerializer<?> objectSerializer -> {
                     final var context = new SerializationContext(this);
-                    asObjectSerializer(objectSerializer).serialize(context, value);
+
+                    TypeUtil.asObjectSerializer(objectSerializer).serialize(context, value);
+
                     yield context.values();
                 }
                 default -> throw new ConfigException("Unsupported serializer type: " + serializer.getClass());
@@ -35,8 +39,8 @@ public final class SerializationService {
 
         return switch (value) {
             case Enum<?> e -> e.name();
-            case Collection<?> collection -> this.serializeCollection(collection, getTypeArgument(type, 0));
-            case Map<?, ?> map -> this.serializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
+            case Collection<?> collection -> this.serializeCollection(collection, TypeUtil.typeArgument(type, 0));
+            case Map<?, ?> map -> this.serializeMap(map, TypeUtil.typeArgument(type, 0), TypeUtil.typeArgument(type, 1));
             default -> value;
         };
     }
@@ -45,7 +49,7 @@ public final class SerializationService {
     public <T> T deserializeValue(final Object raw, final Type type) {
         if (raw == null) return null;
 
-        final var rawType = getRawType(type);
+        final var rawType = TypeUtil.rawType(type);
 
         if (rawType.isEnum() && raw instanceof String s) {
             return (T) Enum.valueOf(rawType.asSubclass(Enum.class), s);
@@ -55,42 +59,20 @@ public final class SerializationService {
 
         if(serializer != null)
             return (T) switch (serializer) {
-                case TypeSerializer<?, ?> typeSerializer -> asTypeSerializer(typeSerializer).deserialize(raw);
-                case ObjectSerializer<?> objectSerializer when raw instanceof Map<?, ?> map -> asObjectSerializer(objectSerializer).deserialize(
+                case TypeSerializer<?, ?> typeSerializer -> TypeUtil.asTypeSerializer(typeSerializer).deserialize(raw);
+                case ObjectSerializer<?> objectSerializer when raw instanceof Map<?, ?> map -> TypeUtil.asObjectSerializer(objectSerializer).deserialize(
                         new DeserializationContext(this, (Map<String, Object>) map)
                 );
                 default -> throw new ConfigException("Unsupported serializer type: " + serializer.getClass());
             };
 
         return (T) switch (raw) {
-            case Collection<?> collection -> this.deserializeCollection(collection, getTypeArgument(type, 0), rawType);
-            case Map<?, ?> map -> this.deserializeMap(map, getTypeArgument(type, 0), getTypeArgument(type, 1));
-            case Number number -> this.convertNumber(number, rawType);
-            case String s -> this.handleString(s, rawType);
+            case Collection<?> collection -> this.deserializeCollection(collection, TypeUtil.typeArgument(type, 0), rawType);
+            case Map<?, ?> map -> this.deserializeMap(map, TypeUtil.typeArgument(type, 0), TypeUtil.typeArgument(type, 1));
+            case Number number -> PrimitiveConverter.convertNumber(number, rawType);
+            case String s -> PrimitiveConverter.convertString(s, rawType);
             default -> raw;
         };
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> ObjectSerializer<T> asObjectSerializer(final Serializer<?, ?> serializer) {
-        return (ObjectSerializer<T>) serializer;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T, R> TypeSerializer<T, R> asTypeSerializer(final Serializer<?, ?> serializer) {
-        return (TypeSerializer<T, R>) serializer;
-    }
-
-    private static Class<?> getRawType(final Type type) {
-        if (type instanceof Class<?> c) return c;
-        if (type instanceof ParameterizedType pt) return (Class<?>) pt.getRawType();
-        return Object.class;
-    }
-
-    private static Type getTypeArgument(final Type type, final int index) {
-        if (type instanceof ParameterizedType pt && pt.getActualTypeArguments().length > index)
-            return pt.getActualTypeArguments()[index];
-        return Object.class;
     }
 
     private Collection<Object> serializeCollection(final Collection<?> collection, final Type elementType) {
@@ -129,23 +111,5 @@ public final class SerializationService {
             );
         }
         return result;
-    }
-
-    private Object handleString(final String s, final Class<?> rawType) {
-        if (rawType == boolean.class || rawType == Boolean.class) return Boolean.valueOf(s);
-        if (rawType == int.class || rawType == Integer.class) return Integer.valueOf(s);
-        if (rawType == long.class || rawType == Long.class) return Long.valueOf(s);
-        if (rawType == float.class || rawType == Float.class) return Float.valueOf(s);
-        if (rawType == double.class || rawType == Double.class) return Double.valueOf(s);
-        return s;
-    }
-
-    private Object convertNumber(final Number number, final Class<?> rawType) {
-        if (rawType == int.class || rawType == Integer.class) return number.intValue();
-        if (rawType == long.class || rawType == Long.class) return number.longValue();
-        if (rawType == float.class || rawType == Float.class) return number.floatValue();
-        if (rawType == double.class || rawType == Double.class) return number.doubleValue();
-        if (rawType == short.class || rawType == Short.class) return number.shortValue();
-        return number;
     }
 }
