@@ -9,7 +9,7 @@ public class ExampleMain {
 
     public static void main(String[] args) {
         var config = ConfigFactory.builder(ExampleConfig.class)
-                .format(JsonConfigParser.standard())
+                .format(JsonConfigParser.createDefault())
                 .file(Paths.get("test", "cfg.json"))
                 .build();
 

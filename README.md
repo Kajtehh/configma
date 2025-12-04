@@ -24,28 +24,35 @@ Add the core library:
 <dependency>
     <groupId>dev.kajteh</groupId>
     <artifactId>configma-core</artifactId>
-    <version>1.0.15-SNAPSHOT</version>
+    <version>1.0.16-SNAPSHOT</version>
 </dependency>
 ```
 
 Then add the parser for the format you want:
 
-**YAML**:
+**YAML (SnakeYAML):**
 ```xml
 <dependency>
     <groupId>dev.kajteh</groupId>
     <artifactId>configma-yaml</artifactId>
-    <version>1.0.15-SNAPSHOT</version>
+    <version>1.0.16-SNAPSHOT</version>
 </dependency>
 ```
 
-**JSON:**
+**JSON (GSON):**
 ```xml
 <dependency>
     <groupId>dev.kajteh</groupId>
     <artifactId>configma-json</artifactId>
-    <version>1.0.15-SNAPSHOT</version>
+    <version>1.0.16-SNAPSHOT</version>
 </dependency>
 ```
 
-## SOON
+**XML (currently experimental):**
+```xml
+<dependency>
+    <groupId>dev.kajteh</groupId>
+    <artifactId>configma-xml</artifactId>
+    <version>1.0.16-SNAPSHOT</version>
+</dependency>
+```

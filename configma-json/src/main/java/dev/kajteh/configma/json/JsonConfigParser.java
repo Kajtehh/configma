@@ -20,13 +20,13 @@ public class JsonConfigParser implements ConfigParser {
         this.gson = gson;
     }
 
-    public static JsonConfigParser standard() {
+    public static JsonConfigParser createDefault() {
         return new JsonConfigParser(new GsonBuilder()
                 .setPrettyPrinting()
                 .create());
     }
 
-    public static JsonConfigParser of(final Gson gson) {
+    public static JsonConfigParser create(final Gson gson) {
         return new JsonConfigParser(gson);
     }
 

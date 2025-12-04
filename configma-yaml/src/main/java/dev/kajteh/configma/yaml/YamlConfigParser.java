@@ -8,7 +8,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 public class YamlConfigParser implements ConfigParser {
@@ -28,11 +27,11 @@ public class YamlConfigParser implements ConfigParser {
         this.yaml = yaml;
     }
 
-    public static YamlConfigParser standard() {
+    public static YamlConfigParser createDefault() {
         return new YamlConfigParser();
     }
 
-    public static YamlConfigParser of(final Yaml yaml) {
+    public static YamlConfigParser create(final Yaml yaml) {
         return new YamlConfigParser(yaml);
     }
 

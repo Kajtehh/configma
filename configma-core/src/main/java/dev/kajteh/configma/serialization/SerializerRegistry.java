@@ -18,7 +18,10 @@ public final class SerializerRegistry {
     @SuppressWarnings("unchecked")
     public <T> Serializer<T, ?> findSerializer(final Class<?> rawType) {
         return (Serializer<T, ?>) this.serializerCache.computeIfAbsent(rawType, type ->
-                this.serializers.stream().filter(s -> s.matches(type)).findFirst().orElse(null)
+                this.serializers.stream()
+                        .filter(s -> s.matches(type))
+                        .findFirst()
+                        .orElse(null)
         );
     }
 }

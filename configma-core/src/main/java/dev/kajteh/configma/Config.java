@@ -31,10 +31,10 @@ public final class Config<T> {
         this.schema = ConfigSchema.of(type, instance);
         this.context = ConfigContext.of(type);
 
-        this.serializer = new SerializationService(serializers);
-
         if(this.parser.commentsSupported())
             this.context.registerComments(this.schema, this.parser.formatter(), null);
+
+        this.serializer = new SerializationService(serializers);
     }
 
     void load(final boolean write) {
