@@ -110,8 +110,8 @@ public final class Config<T> {
 
         for (final var field : schema.fields()) {
             out.put(field.key().name(this.parser.formatter()), field.isNested()
-                    ? this.saveSchema(field.nestedSchema(field.getValue(schema.instance())))
-                    : this.serializer.serializeValue(field.getValue(schema.instance()), field.genericType()));
+                    ? this.saveSchema(field.nestedSchema(field.getValue(schema)))
+                    : this.serializer.serializeValue(field.getValue(schema), field.genericType()));
         }
 
         return out;

@@ -9,6 +9,7 @@ import dev.kajteh.configma.schema.ConfigSchema;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 public record ConfigContext(Class<?> type, List<String> header, List<String> footer, int spacing, String commentPrefix, Map<String, List<String>> comments, Map<String, String> inlineComments) {
@@ -25,6 +26,10 @@ public record ConfigContext(Class<?> type, List<String> header, List<String> foo
                 new HashMap<>(),
                 new HashMap<>()
         );
+    }
+
+    public String commentPrefix(final String defaultPrefix) {
+        return Optional.ofNullable(this.commentPrefix).orElse(defaultPrefix);
     }
 
     public void registerComments(final ConfigSchema<?> schema, final Function<String, String> formatter, final String parentPath) {

@@ -29,6 +29,10 @@ public record ConfigField(Field rawField, ConfigKey key, Type genericType, Class
         return ConfigSchema.ofNested(this, parentInstance);
     }
 
+    public Object getValue(final ConfigSchema<?> schema) {
+        return this.getValue(schema.instance());
+    }
+
     public Object getValue(final Object instance) {
         try {
             return this.rawField.get(instance);

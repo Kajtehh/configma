@@ -21,23 +21,47 @@ import java.util.List;
 @Footer("Footer")
 public class ExampleConfig {
 
-    public List<String> testList = List.of("test1", "test2", "test3");
+    private List<String> testList = List.of("test1", "test2", "test3");
 
     @Nested
-    public DatabaseConfig database = new DatabaseConfig();
+    private DatabaseConfig database = new DatabaseConfig();
 
     public static class DatabaseConfig {
 
         @Comment("host")
-        public String host = "localhost";
+        private String host = "localhost";
 
         @Comment("port")
-        public int port = 5432;
+        private int port = 5432;
 
         @Comment("User")
         @InlineComment("Lolol")
-        public String user = "root";
+        private String user = "root";
 
-        public String password = "secrete";
+        private String password = "secrete";
+
+        public String host() {
+            return host;
+        }
+
+        public int port() {
+            return port;
+        }
+
+        public String user() {
+            return user;
+        }
+
+        public String password() {
+            return password;
+        }
+    }
+
+    public List<String> testList() {
+        return testList;
+    }
+
+    public DatabaseConfig database() {
+        return database;
     }
 }

@@ -17,6 +17,8 @@ public class YamlConfigParser implements ConfigParser {
             .replaceAll("([a-z])([A-Z])", "$1-$2")
             .toLowerCase();
 
+    private static final String DEFAULT_COMMENT_PREFIX = "# ";
+
     private YamlConfigParser() {
         final DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
@@ -43,7 +45,7 @@ public class YamlConfigParser implements ConfigParser {
     @Override
     public void write(final Writer writer, final Map<String, Object> values, final ConfigContext context) {
         try {
-            final var commentPrefix = context.commentPrefix();
+            final var commentPrefix = context.commentPrefix(DEFAULT_COMMENT_PREFIX);
 
             if (context.header() != null) {
                 for (final var line : context.header())
@@ -96,13 +98,13 @@ public class YamlConfigParser implements ConfigParser {
         if (colon > 0) indent = yamlLine.substring(0, yamlLine.indexOf(yamlLine.trim())).replaceAll("[^ ]", "");
 
         for (final var comment : comments)
-            writer.write(indent + context.commentPrefix() + comment + System.lineSeparator());
+            writer.write(indent + context.commentPrefix(DEFAULT_COMMENT_PREFIX) + comment + System.lineSeparator());
     }
 
     private void applyInlineComment(final ConfigContext context, final String field, final Writer writer, final String yamlLine) throws IOException {
         final var comment = context.inlineComments().get(field);
         if (comment != null) {
-            writer.write(yamlLine + " " + context.commentPrefix() + comment + System.lineSeparator());
+            writer.write(yamlLine + " " + context.commentPrefix(DEFAULT_COMMENT_PREFIX) + comment + System.lineSeparator());
             return;
         }
 
