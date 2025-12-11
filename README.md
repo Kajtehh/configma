@@ -28,7 +28,7 @@ Add the core library:
 </dependency>
 ```
 
-Then add the parser for the format you want:
+Then add the loader for the format you want:
 
 **YAML (SnakeYAML):**
 ```xml

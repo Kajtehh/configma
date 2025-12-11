@@ -1,13 +1,8 @@
 package dev.kajteh.configma.example;
 
 import dev.kajteh.configma.annotation.*;
-import dev.kajteh.configma.annotation.decoration.*;
-import dev.kajteh.configma.annotation.decoration.comment.Comment;
-import dev.kajteh.configma.annotation.decoration.comment.InlineComment;
+import dev.kajteh.configma.annotation.meta.*;
 
-import java.util.List;
-
-@Spacing(1)
 @Header({
         "",
         "░█████╗░░█████╗░███╗░░██╗███████╗██╗░██████╗░███╗░░░███╗░█████╗░",
@@ -18,50 +13,22 @@ import java.util.List;
         "░╚════╝░░╚════╝░╚═╝░░╚══╝╚═╝░░░░░╚═╝░╚═════╝░╚═╝░░░░░╚═╝╚═╝░░╚═╝",
         ""
 })
-@Footer("Footer")
 public class ExampleConfig {
 
-    private List<String> testList = List.of("test1", "test2", "test3");
+    enum Environment {
+        PRODUCTION,
+        TEST
+    }
 
-    @Nested
-    private DatabaseConfig database = new DatabaseConfig();
+    Environment environment = Environment.TEST;
+
+    @Nested DatabaseConfig database = new DatabaseConfig();
 
     public static class DatabaseConfig {
 
-        @Comment("host")
-        private String host = "localhost";
-
-        @Comment("port")
-        private int port = 5432;
-
-        @Comment("User")
-        @InlineComment("Lolol")
-        private String user = "root";
-
-        private String password = "secrete";
-
-        public String host() {
-            return host;
-        }
-
-        public int port() {
-            return port;
-        }
-
-        public String user() {
-            return user;
-        }
-
-        public String password() {
-            return password;
-        }
-    }
-
-    public List<String> testList() {
-        return testList;
-    }
-
-    public DatabaseConfig database() {
-        return database;
+        String host = "localhost";
+        int port = 5432;
+        String user = "root";
+        String password = "secrete";
     }
 }

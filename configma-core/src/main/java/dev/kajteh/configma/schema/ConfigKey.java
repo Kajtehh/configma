@@ -9,13 +9,16 @@ public record ConfigKey(String rawName, boolean exact) {
 
     public static ConfigKey of(final Field field) {
         final var fieldName = field.getName();
-        final var annotation = field.getAnnotation(Key.class);
+        final var key = field.getAnnotation(Key.class);
 
-        final var keyName = annotation != null
-                ? (annotation.value().isEmpty() ? fieldName : annotation.value())
+        final var keyName = key != null
+                ? (key.value().isEmpty() ? fieldName : key.value())
                 : fieldName;
 
-        return new ConfigKey(keyName, annotation != null && annotation.exact());
+        return new ConfigKey(
+                keyName,
+                key != null && key.exact()
+        );
     }
 
     public String name(final Function<String, String> formatter) {

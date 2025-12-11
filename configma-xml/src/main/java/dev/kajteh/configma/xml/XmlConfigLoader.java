@@ -1,7 +1,7 @@
 package dev.kajteh.configma.xml;
 
 import dev.kajteh.configma.ConfigContext;
-import dev.kajteh.configma.ConfigParser;
+import dev.kajteh.configma.ConfigLoader;
 import dev.kajteh.configma.exception.ConfigException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.dataformat.xml.XmlMapper;
@@ -13,10 +13,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Experimental XML parser - do not use in production environment!
+ * Experimental XML loader - do not use in production environment!
  */
 @Deprecated
-public class XmlConfigParser implements ConfigParser {
+public class XmlConfigLoader implements ConfigLoader {
 
     // TODO: add custom lists and maps handler
 
@@ -25,7 +25,7 @@ public class XmlConfigParser implements ConfigParser {
 
     private static final String ROOT_NAME = "config";
 
-    public XmlConfigParser() {
+    public XmlConfigLoader() {
         this.mapper = new XmlMapper();
     }
 
@@ -69,7 +69,7 @@ public class XmlConfigParser implements ConfigParser {
     }
 
     @Override
-    public ConfigParser withFormatter(Function<String, String> formatter) {
+    public ConfigLoader withFormatter(Function<String, String> formatter) {
         this.formatter = formatter;
         return this;
     }

@@ -5,7 +5,7 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.function.Function;
 
-public interface ConfigParser {
+public interface ConfigLoader {
 
     Map<String, Object> load(final Reader reader, final ConfigContext context);
 
@@ -15,7 +15,7 @@ public interface ConfigParser {
     
     Function<String, String> formatter();
     
-    ConfigParser withFormatter(final Function<String, String> formatter);
+    ConfigLoader withFormatter(final Function<String, String> formatter);
 
     default boolean commentsSupported() {
         return false;

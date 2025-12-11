@@ -1,24 +1,26 @@
 package dev.kajteh.configma.schema;
 
 import dev.kajteh.configma.annotation.Nested;
-import dev.kajteh.configma.annotation.decoration.comment.Comment;
-import dev.kajteh.configma.annotation.decoration.comment.InlineComment;
+import dev.kajteh.configma.annotation.meta.comment.Comment;
+import dev.kajteh.configma.annotation.meta.comment.InlineComment;
 import dev.kajteh.configma.exception.ConfigFieldException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public record ConfigField(Field rawField, ConfigKey key, Type genericType, Class<?> type, List<String> comments, String inlineComment, boolean isNested) {
+public record ConfigField(Field rawField, ConfigKey key, Type genericType, Class<?> type, List<String> comments, String inlineComment, boolean isNested) { // todo add serialiozer here
 
     public static ConfigField of(final Field field) {
         field.setAccessible(true);
+
+        final var type = field.getType();
 
         return new ConfigField(
                 field,
                 ConfigKey.of(field),
                 field.getGenericType(),
-                field.getType(),
+                type,
                 field.isAnnotationPresent(Comment.class) ? List.of(field.getAnnotation(Comment.class).value()) : null,
                 field.isAnnotationPresent(InlineComment.class) ? field.getAnnotation(InlineComment.class).value() : null,
                 field.isAnnotationPresent(Nested.class)

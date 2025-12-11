@@ -1,9 +1,9 @@
 package dev.kajteh.configma;
 
-import dev.kajteh.configma.annotation.decoration.comment.CommentPrefix;
-import dev.kajteh.configma.annotation.decoration.Footer;
-import dev.kajteh.configma.annotation.decoration.Header;
-import dev.kajteh.configma.annotation.decoration.Spacing;
+import dev.kajteh.configma.annotation.meta.comment.CommentPrefix;
+import dev.kajteh.configma.annotation.meta.Footer;
+import dev.kajteh.configma.annotation.meta.Header;
+import dev.kajteh.configma.annotation.meta.Spacing;
 import dev.kajteh.configma.schema.ConfigSchema;
 
 import java.util.HashMap;

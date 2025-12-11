@@ -7,32 +7,34 @@ import dev.kajteh.configma.serialization.serializer.Serializer;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 
 public final class Config<T> {
 
-    private final File file;
-    private final ConfigParser parser;
+    private final Path path;
+    private final ConfigLoader loader;
     private final ConfigSchema<T> schema;
     private final ConfigContext context;
     private final SerializationService serializer;
 
     Config(
-            final File file,
-            final ConfigParser parser,
+            final Path path,
+            final ConfigLoader loader,
             final Class<T> type,
             final T instance,
             final List<Serializer<?, ?>> serializers
     ) {
-        this.file = file;
-        this.parser = parser;
+        this.path = path;
+        this.loader = loader;
 
         this.schema = ConfigSchema.of(type, instance);
         this.context = ConfigContext.of(type);
 
-        if(this.parser.commentsSupported())
-            this.context.registerComments(this.schema, this.parser.formatter(), null);
+        if(this.loader.commentsSupported())
+            this.context.registerComments(this.schema, this.loader.formatter(), null);
 
         this.serializer = new SerializationService(serializers);
     }
@@ -41,13 +43,13 @@ public final class Config<T> {
         final Map<String, Object> loadedValues;
 
         try (final var reader = new BufferedReader(
-                new InputStreamReader(new FileInputStream(this.file), StandardCharsets.UTF_8))) {
+                new InputStreamReader(Files.newInputStream(this.path), StandardCharsets.UTF_8))) {
 
-            loadedValues = Optional.ofNullable(this.parser.load(reader, this.context))
+            loadedValues = Optional.ofNullable(this.loader.load(reader, this.context))
                     .orElseGet(LinkedHashMap::new);
 
         } catch (final IOException e) {
-            throw new ConfigException("Failed to load configuration file: " + this.file.getAbsolutePath(), e);
+            throw new ConfigException("Failed to load configuration values from: " + this.path, e);
         }
 
         final var formattedValues = this.loadSchema(this.schema, loadedValues, write);
@@ -67,7 +69,7 @@ public final class Config<T> {
 
         for (final var field : schema.fields()) {
 
-            final var formattedName = field.key().name(this.parser.formatter());
+            final var formattedName = field.key().name(this.loader.formatter());
 
             if (field.isNested()) {
                 final Map<String, Object> subLoaded =
@@ -109,7 +111,7 @@ public final class Config<T> {
         final Map<String, Object> out = new LinkedHashMap<>();
 
         for (final var field : schema.fields()) {
-            out.put(field.key().name(this.parser.formatter()), field.isNested()
+            out.put(field.key().name(this.loader.formatter()), field.isNested()
                     ? this.saveSchema(field.nestedSchema(field.getValue(schema)))
                     : this.serializer.serializeValue(field.getValue(schema), field.genericType()));
         }
@@ -121,12 +123,12 @@ public final class Config<T> {
         if(values.isEmpty()) return;
 
         try (final var writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8))) {
+                new OutputStreamWriter(Files.newOutputStream(path), StandardCharsets.UTF_8))) {
 
-            this.parser.write(writer, values, this.context);
+            this.loader.write(writer, values, this.context);
 
         } catch (final IOException e) {
-            throw new ConfigException("Failed to write configuration values from: " + this.file.getAbsolutePath(), e);
+            throw new ConfigException("Failed to write configuration values from: " + this.path, e);
         }
     }
 

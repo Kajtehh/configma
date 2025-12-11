@@ -1,4 +1,4 @@
-package dev.kajteh.configma.annotation.decoration;
+package dev.kajteh.configma.annotation.meta.comment;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Footer {
-    String[] value();
+public @interface CommentPrefix {
+    String value();
 }

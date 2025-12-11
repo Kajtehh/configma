@@ -2,7 +2,7 @@ package dev.kajteh.configma.yaml;
 
 import dev.kajteh.configma.ConfigContext;
 import dev.kajteh.configma.exception.ConfigException;
-import dev.kajteh.configma.ConfigParser;
+import dev.kajteh.configma.ConfigLoader;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -10,7 +10,7 @@ import java.io.*;
 import java.util.Map;
 import java.util.function.Function;
 
-public class YamlConfigParser implements ConfigParser {
+public class YamlConfigLoader implements ConfigLoader {
 
     private final Yaml yaml;
     private Function<String, String> formatter = name -> name
@@ -19,22 +19,14 @@ public class YamlConfigParser implements ConfigParser {
 
     private static final String DEFAULT_COMMENT_PREFIX = "# ";
 
-    private YamlConfigParser() {
+    public static YamlConfigLoader create() {
         final DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        this.yaml = new Yaml(options);
+        return new YamlConfigLoader(new Yaml(options));
     }
 
-    private YamlConfigParser(final Yaml yaml) {
+    public YamlConfigLoader(final Yaml yaml) {
         this.yaml = yaml;
-    }
-
-    public static YamlConfigParser createDefault() {
-        return new YamlConfigParser();
-    }
-
-    public static YamlConfigParser create(final Yaml yaml) {
-        return new YamlConfigParser(yaml);
     }
 
     @Override
@@ -43,7 +35,11 @@ public class YamlConfigParser implements ConfigParser {
     }
 
     @Override
-    public void write(final Writer writer, final Map<String, Object> values, final ConfigContext context) {
+    public void write(
+            final Writer writer,
+            final Map<String, Object> values,
+            final ConfigContext context
+    ) {
         try {
             final var commentPrefix = context.commentPrefix(DEFAULT_COMMENT_PREFIX);
 
@@ -88,21 +84,34 @@ public class YamlConfigParser implements ConfigParser {
         }
     }
 
-    private void applyComments(final ConfigContext context, final String field, final Writer writer, final String yamlLine) throws IOException {
+    private void applyComments(
+            final ConfigContext context,
+            final String field,
+            final Writer writer,
+            final String yamlLine
+    ) throws IOException {
         final var comments = context.comments().get(field);
         if (comments == null) return;
 
         String indent = "";
 
         final int colon = yamlLine.indexOf(':');
-        if (colon > 0) indent = yamlLine.substring(0, yamlLine.indexOf(yamlLine.trim())).replaceAll("[^ ]", "");
+        if (colon > 0) indent = yamlLine.substring(0, yamlLine.indexOf(yamlLine.trim()))
+                .replaceAll("[^ ]", "");
 
         for (final var comment : comments)
             writer.write(indent + context.commentPrefix(DEFAULT_COMMENT_PREFIX) + comment + System.lineSeparator());
     }
 
-    private void applyInlineComment(final ConfigContext context, final String field, final Writer writer, final String yamlLine) throws IOException {
-        final var comment = context.inlineComments().get(field);
+    private void applyInlineComment(
+            final ConfigContext context,
+            final String field,
+            final Writer writer,
+            final String yamlLine
+    ) throws IOException {
+        final var comment = context.inlineComments()
+                .get(field);
+
         if (comment != null) {
             writer.write(yamlLine + " " + context.commentPrefix(DEFAULT_COMMENT_PREFIX) + comment + System.lineSeparator());
             return;
@@ -134,7 +143,7 @@ public class YamlConfigParser implements ConfigParser {
     }
 
     @Override
-    public ConfigParser withFormatter(final Function<String, String> formatter) {
+    public ConfigLoader withFormatter(final Function<String, String> formatter) {
         this.formatter = formatter;
         return this;
     }

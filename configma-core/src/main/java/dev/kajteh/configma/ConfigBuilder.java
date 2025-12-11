@@ -4,9 +4,10 @@ import dev.kajteh.configma.exception.ConfigException;
 import dev.kajteh.configma.serialization.serializer.Serializer;
 import dev.kajteh.configma.serialization.serializer.builtin.InstantSerializer;
 import dev.kajteh.configma.serialization.serializer.builtin.UUIDSerializer;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,16 +19,14 @@ public final class ConfigBuilder<T> {
             new InstantSerializer()
     );
 
+    private final List<Serializer<?, ?>> serializers = new ArrayList<>(BUILTIN_SERIALIZERS);
+
     private final Class<T> type;
-    private final List<Serializer<?, ?>> additionalSerializers = new ArrayList<>();
 
     private T instance;
-    private ConfigParser parser;
-    private File file;
-    //private boolean removeOrphans; TODO: 11/24/2025
-    private boolean autoLoad = true;
+    private Path path;
 
-    public ConfigBuilder(final Class<T> type) {
+    ConfigBuilder(final Class<T> type) {
         this.type = type;
     }
 
@@ -36,69 +35,39 @@ public final class ConfigBuilder<T> {
         return this;
     }
 
-    public ConfigBuilder<T> file(final File file) {
-        this.file = file;
-        return this;
-    }
-
-    public ConfigBuilder<T> file(final Path path) {
-        return this.file(path.toFile());
-    }
-
-    public ConfigBuilder<T> file(final String pathname) {
-        return this.file(new File(pathname));
-    }
-
-    public ConfigBuilder<T> format(final ConfigParser parser) {
-        this.parser = parser;
+    public ConfigBuilder<T> path(@NotNull final Path path) {
+        this.path = path;
         return this;
     }
 
     public ConfigBuilder<T> serializer(final Serializer<?, ?>... serializers) {
-        this.additionalSerializers.addAll(List.of(serializers));
+        this.serializers.addAll(List.of(serializers));
         return this;
     }
 
-//    public ConfigBuilder<T> removeOrphans(final boolean removeOrphans) {
-//        this.removeOrphans = removeOrphans;
-//        return this;
-//    }
+    public Config<T> load(@NotNull final ConfigLoader loader) {
+        this.ensureFileExists();
 
-    public ConfigBuilder<T> autoLoad(final boolean autoLoad) {
-        this.autoLoad = autoLoad;
-        return this;
-    }
+        final var config = new Config<>(this.path, loader, type, this.instance, this.serializers);
 
-    public Config<T> build() {
-        if (this.file == null)
-            throw new ConfigException("Config file cannot be null");
-        if (this.parser == null)
-            throw new ConfigException("Config parser cannot be null");
-
-        this.ensureFileExists(file);
-
-        final var serializers = new ArrayList<>(BUILTIN_SERIALIZERS);
-        serializers.addAll(this.additionalSerializers);
-
-        final var config = new Config<>(this.file, this.parser, this.type, this.instance, serializers);
-
-        if (autoLoad) config.load(true);
+        config.load(true);
 
         return config;
     }
 
-    private void ensureFileExists(final File file) {
+    private void ensureFileExists() {
         try {
-            final var parent = file.getParentFile();
-            if (parent != null && !parent.exists() && !parent.mkdirs()) {
-                throw new IOException("Failed to create directories for " + parent.getPath());
+            final var parent = this.path.getParent();
+
+            if (parent != null && !Files.exists(parent)) {
+                Files.createDirectories(parent);
             }
 
-            if (!file.exists() && !file.createNewFile()) {
-                throw new IOException("Failed to create config file " + file.getPath());
+            if (!Files.exists(this.path)) {
+                Files.createFile(this.path);
             }
         } catch (final IOException e) {
-            throw new ConfigException("Cannot create config file: " + file.getPath(), e);
+            throw new ConfigException("Cannot create config file: " + this.path, e);
         }
     }
 }
