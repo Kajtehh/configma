@@ -23,7 +23,7 @@ public record ConfigField(Field rawField, ConfigKey key, Type genericType, Class
                 type,
                 field.isAnnotationPresent(Comment.class) ? List.of(field.getAnnotation(Comment.class).value()) : null,
                 field.isAnnotationPresent(InlineComment.class) ? field.getAnnotation(InlineComment.class).value() : null,
-                field.isAnnotationPresent(Nested.class)
+                field.isAnnotationPresent(Nested.class) || type.isAnnotationPresent(Nested.class)
         );
     }
 

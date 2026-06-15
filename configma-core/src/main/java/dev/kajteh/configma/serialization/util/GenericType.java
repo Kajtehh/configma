@@ -1,5 +1,7 @@
 package dev.kajteh.configma.serialization.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -18,12 +20,12 @@ public final class GenericType implements ParameterizedType {
     }
 
     @Override
-    public Type[] getActualTypeArguments() {
+    public Type @NotNull [] getActualTypeArguments() {
         return this.args.clone();
     }
 
     @Override
-    public Type getRawType() {
+    public @NotNull Type getRawType() {
         return this.raw;
     }
 

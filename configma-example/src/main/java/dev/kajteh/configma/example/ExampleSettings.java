@@ -13,7 +13,7 @@ import dev.kajteh.configma.annotation.meta.*;
         "░╚════╝░░╚════╝░╚═╝░░╚══╝╚═╝░░░░░╚═╝░╚═════╝░╚═╝░░░░░╚═╝╚═╝░░╚═╝",
         ""
 })
-public class ExampleConfig {
+public class ExampleSettings {
 
     enum Environment {
         PRODUCTION,
