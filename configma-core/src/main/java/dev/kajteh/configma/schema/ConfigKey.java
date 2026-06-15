@@ -1,9 +1,10 @@
 package dev.kajteh.configma.schema;
 
+import dev.kajteh.configma.ConfigLoader;
 import dev.kajteh.configma.annotation.Key;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
-import java.util.function.Function;
 
 public record ConfigKey(String rawName, boolean exact) {
 
@@ -21,7 +22,7 @@ public record ConfigKey(String rawName, boolean exact) {
         );
     }
 
-    public String name(final Function<String, String> formatter) {
-        return this.exact ? this.rawName : formatter.apply(this.rawName);
+    public String name(final @NotNull ConfigLoader loader) {
+        return this.exact ? this.rawName : loader.formatField(this.rawName);
     }
 }

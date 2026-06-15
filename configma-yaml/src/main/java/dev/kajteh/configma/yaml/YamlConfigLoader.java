@@ -3,23 +3,20 @@ package dev.kajteh.configma.yaml;
 import dev.kajteh.configma.ConfigContext;
 import dev.kajteh.configma.exception.ConfigException;
 import dev.kajteh.configma.ConfigLoader;
+import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.util.Map;
-import java.util.function.Function;
 
 public class YamlConfigLoader implements ConfigLoader {
 
     private final Yaml yaml;
-    private Function<String, String> formatter = name -> name
-            .replaceAll("([a-z])([A-Z])", "$1-$2")
-            .toLowerCase();
 
     private static final String DEFAULT_COMMENT_PREFIX = "# ";
 
-    public static YamlConfigLoader create() {
+    public static YamlConfigLoader createDefault() {
         final DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         return new YamlConfigLoader(new Yaml(options));
@@ -84,6 +81,11 @@ public class YamlConfigLoader implements ConfigLoader {
         }
     }
 
+    @Override
+    public @NotNull String fileExtension() {
+        return "yml";
+    }
+
     private void applyComments(
             final ConfigContext context,
             final String field,
@@ -138,14 +140,9 @@ public class YamlConfigLoader implements ConfigLoader {
     }
 
     @Override
-    public Function<String, String> formatter() {
-        return this.formatter;
-    }
-
-    @Override
-    public ConfigLoader withFormatter(final Function<String, String> formatter) {
-        this.formatter = formatter;
-        return this;
+    public @NotNull String formatField(@NotNull String name) {
+        return name.replaceAll("([a-z])([A-Z])", "$1-$2")
+                .toLowerCase();
     }
 
     @Override

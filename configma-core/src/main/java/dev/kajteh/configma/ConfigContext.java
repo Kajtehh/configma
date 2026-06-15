@@ -32,9 +32,9 @@ public record ConfigContext(Class<?> type, List<String> header, List<String> foo
         return Optional.ofNullable(this.commentPrefix).orElse(defaultPrefix);
     }
 
-    public void registerComments(final ConfigSchema<?> schema, final Function<String, String> formatter, final String parentPath) {
+    public void registerComments(final ConfigSchema<?> schema, final ConfigLoader loader, final String parentPath) {
         for (final var field : schema.fields()) {
-            final var name = field.key().name(formatter);
+            final var name = field.key().name(loader);
             final var path = parentPath != null ? parentPath + "." + name : name;
 
             if (field.comments() != null)
@@ -44,7 +44,7 @@ public record ConfigContext(Class<?> type, List<String> header, List<String> foo
                 this.inlineComments.put(path, field.inlineComment());
 
             if (field.isNested())
-                this.registerComments(field.nestedSchema(schema.instance()), formatter, path);
+                this.registerComments(field.nestedSchema(schema.instance()), loader, path);
         }
     }
 }

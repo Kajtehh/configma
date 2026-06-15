@@ -5,16 +5,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dev.kajteh.configma.ConfigContext;
 import dev.kajteh.configma.ConfigLoader;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Map;
-import java.util.function.Function;
 
 public class JsonConfigLoader implements ConfigLoader {
 
     private final Gson gson;
-    private Function<String, String> formatter = Function.identity();
 
     private JsonConfigLoader(final Gson gson) {
         this.gson = gson;
@@ -41,13 +40,7 @@ public class JsonConfigLoader implements ConfigLoader {
     }
 
     @Override
-    public Function<String, String> formatter() {
-        return this.formatter;
-    }
-
-    @Override
-    public ConfigLoader withFormatter(final Function<String, String> formatter) {
-        this.formatter = formatter;
-        return this;
+    public @NotNull String fileExtension() {
+        return "json";
     }
 }

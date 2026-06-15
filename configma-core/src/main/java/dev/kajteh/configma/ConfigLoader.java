@@ -1,5 +1,7 @@
 package dev.kajteh.configma;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Map;
@@ -11,11 +13,11 @@ public interface ConfigLoader {
 
     void write(final Writer writer, final Map<String, Object> values, final ConfigContext context);
 
-    //Set<String> extensions(); TODO: 12/3/2025
+    @NotNull String fileExtension();
     
-    Function<String, String> formatter();
-    
-    ConfigLoader withFormatter(final Function<String, String> formatter);
+    default @NotNull String formatField(@NotNull String name) {
+        return name;
+    };
 
     default boolean commentsSupported() {
         return false;

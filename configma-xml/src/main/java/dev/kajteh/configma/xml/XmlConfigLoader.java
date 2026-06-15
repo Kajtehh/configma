@@ -3,6 +3,7 @@ package dev.kajteh.configma.xml;
 import dev.kajteh.configma.ConfigContext;
 import dev.kajteh.configma.ConfigLoader;
 import dev.kajteh.configma.exception.ConfigException;
+import org.jetbrains.annotations.NotNull;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.dataformat.xml.XmlMapper;
 
@@ -10,7 +11,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Experimental XML loader - do not use in production environment!
@@ -21,7 +21,6 @@ public class XmlConfigLoader implements ConfigLoader {
     // TODO: add custom lists and maps handler
 
     private final XmlMapper mapper;
-    private Function<String, String> formatter = Function.identity();
 
     private static final String ROOT_NAME = "config";
 
@@ -64,13 +63,7 @@ public class XmlConfigLoader implements ConfigLoader {
     }
 
     @Override
-    public Function<String, String> formatter() {
-        return this.formatter;
-    }
-
-    @Override
-    public ConfigLoader withFormatter(Function<String, String> formatter) {
-        this.formatter = formatter;
-        return this;
+    public @NotNull String fileExtension() {
+        return "xml";
     }
 }

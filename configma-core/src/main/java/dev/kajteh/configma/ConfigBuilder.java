@@ -26,16 +26,16 @@ public final class ConfigBuilder<T> {
     private T instance;
     private Path path;
 
-    ConfigBuilder(final Class<T> type) {
+    ConfigBuilder(final @NotNull Class<T> type) {
         this.type = type;
     }
 
-    public ConfigBuilder<T> instance(final T instance) {
+    public ConfigBuilder<T> instance(final @NotNull T instance) {
         this.instance = instance;
         return this;
     }
 
-    public ConfigBuilder<T> path(@NotNull final Path path) {
+    public ConfigBuilder<T> path(final @NotNull Path path) {
         this.path = path;
         return this;
     }
@@ -45,29 +45,37 @@ public final class ConfigBuilder<T> {
         return this;
     }
 
-    public Config<T> load(@NotNull final ConfigLoader loader) {
-        this.ensureFileExists();
+    public Config<T> load(final @NotNull ConfigLoader loader) {
+        final Path finalPath = this.ensureFileExists(loader);
 
-        final var config = new Config<>(this.path, loader, type, this.instance, this.serializers);
+        final var config = new Config<>(finalPath, loader, type, this.instance, this.serializers);
 
         config.load(true);
 
         return config;
     }
 
-    private void ensureFileExists() {
+    private @NotNull Path ensureFileExists(final @NotNull ConfigLoader loader) {
+        final String extension = "." + loader.fileExtension();
+
+        final Path finalPath = this.path.toString().endsWith(extension)
+                ? this.path
+                : this.path.resolveSibling(this.path.getFileName().toString() + extension);
+
         try {
-            final var parent = this.path.getParent();
+            final var parent = finalPath.getParent();
 
             if (parent != null && !Files.exists(parent)) {
                 Files.createDirectories(parent);
             }
 
-            if (!Files.exists(this.path)) {
-                Files.createFile(this.path);
+            if (!Files.exists(finalPath)) {
+                Files.createFile(finalPath);
             }
+
+            return finalPath;
         } catch (final IOException e) {
-            throw new ConfigException("Cannot create config file: " + this.path, e);
+            throw new ConfigException("Cannot create config file: " + finalPath, e);
         }
     }
 }

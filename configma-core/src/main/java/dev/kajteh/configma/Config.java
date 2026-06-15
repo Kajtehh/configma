@@ -34,7 +34,7 @@ public final class Config<T> {
         this.context = ConfigContext.of(type);
 
         if(this.loader.commentsSupported())
-            this.context.registerComments(this.schema, this.loader.formatter(), null);
+            this.context.registerComments(this.schema, this.loader, null);
 
         this.serializer = new SerializationService(serializers);
     }
@@ -69,7 +69,7 @@ public final class Config<T> {
 
         for (final var field : schema.fields()) {
 
-            final var formattedName = field.key().name(this.loader.formatter());
+            final var formattedName = field.key().name(this.loader);
 
             if (field.isNested()) {
                 final Map<String, Object> subLoaded =
@@ -111,7 +111,7 @@ public final class Config<T> {
         final Map<String, Object> out = new LinkedHashMap<>();
 
         for (final var field : schema.fields()) {
-            out.put(field.key().name(this.loader.formatter()), field.isNested()
+            out.put(field.key().name(this.loader), field.isNested()
                     ? this.saveSchema(field.nestedSchema(field.getValue(schema)))
                     : this.serializer.serializeValue(field.getValue(schema), field.genericType()));
         }
