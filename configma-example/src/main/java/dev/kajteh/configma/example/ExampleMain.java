@@ -3,6 +3,7 @@ package dev.kajteh.configma.example;
 import dev.kajteh.configma.Config;
 import dev.kajteh.configma.ConfigFactory;
 import dev.kajteh.configma.json.JsonConfigLoader;
+import dev.kajteh.configma.serialization.serializer.builtin.RecordSerializer;
 import dev.kajteh.configma.yaml.YamlConfigLoader;
 
 import java.nio.file.Paths;
@@ -15,7 +16,8 @@ public final class ExampleMain {
 
     public static void main(String[] args) {
         final var builder = ConfigFactory.builder(ExampleSettings.class)
-                .path(Paths.get("test", "config"));
+                .path(Paths.get("test", "test.config"))
+                .serializer(new RecordSerializer());
 
         final Set<Config<ExampleSettings>> configs = Set.of(
                 builder.load(YamlConfigLoader.createDefault()),

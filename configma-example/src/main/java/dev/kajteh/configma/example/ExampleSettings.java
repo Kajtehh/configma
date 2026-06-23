@@ -3,6 +3,8 @@ package dev.kajteh.configma.example;
 import dev.kajteh.configma.annotation.*;
 import dev.kajteh.configma.annotation.meta.*;
 
+import java.util.UUID;
+
 @Header({
         "",
         "░█████╗░░█████╗░███╗░░██╗███████╗██╗░██████╗░███╗░░░███╗░█████╗░",
@@ -23,6 +25,9 @@ public class ExampleSettings {
     Environment environment = Environment.TEST;
 
     @Nested DatabaseConfig database = new DatabaseConfig();
+
+    public User user
+             = new User(UUID.randomUUID(), UUID.randomUUID().toString());
 
     public static class DatabaseConfig {
 

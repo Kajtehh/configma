@@ -64,7 +64,7 @@ public final class Config<T> {
             final Map<String, Object> loadedValues,
             final boolean write
     ) {
-        final var instance = schema.instance();
+        final Object instance = schema.instance();
         final Map<String, Object> formattedValues = write ? new LinkedHashMap<>() : null;
 
         for (final var field : schema.fields()) {

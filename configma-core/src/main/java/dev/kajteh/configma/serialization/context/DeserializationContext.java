@@ -2,6 +2,7 @@ package dev.kajteh.configma.serialization.context;
 
 import dev.kajteh.configma.serialization.SerializationService;
 import dev.kajteh.configma.serialization.util.GenericType;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -10,10 +11,16 @@ import java.util.Map;
 public final class DeserializationContext {
 
     private final SerializationService serializationService;
+    private final Class<?> rawType;
     private final Map<String, Object> values;
 
-    public DeserializationContext(final SerializationService serializationService, final Map<String, Object> values) {
+    public DeserializationContext(
+            final @NotNull SerializationService serializationService,
+            final @NotNull Class<?> rawType,
+            final @NotNull Map<String, Object> values
+    ) {
         this.serializationService = serializationService;
+        this.rawType = rawType;
         this.values = values;
     }
 
@@ -43,5 +50,9 @@ public final class DeserializationContext {
 
     public String getString(final String key) {
         return this.get(key, String.class);
+    }
+
+    public @NotNull Class<?> getRawType() {
+        return this.rawType;
     }
 }  

@@ -1,5 +1,6 @@
 package dev.kajteh.configma.serialization.util;
 
+import dev.kajteh.configma.exception.ConfigException;
 import dev.kajteh.configma.serialization.serializer.ObjectSerializer;
 import dev.kajteh.configma.serialization.serializer.Serializer;
 import dev.kajteh.configma.serialization.serializer.TypeSerializer;
@@ -33,5 +34,13 @@ public final class TypeUtil {
     @SuppressWarnings("unchecked")
     public static <T, R> TypeSerializer<T, R> asTypeSerializer(final Serializer<?, ?> serializer) {
         return (TypeSerializer<T, R>) serializer;
+    }
+
+    public static <T> T createInstance(final Class<T> type) {
+        try {
+            return type.getDeclaredConstructor().newInstance();
+        } catch (final Exception e) {
+            throw new ConfigException("Cannot create an instance for : " + type.getName(), e);
+        }
     }
 }

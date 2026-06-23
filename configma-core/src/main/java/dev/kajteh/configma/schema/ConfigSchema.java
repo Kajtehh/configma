@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static dev.kajteh.configma.serialization.util.TypeUtil.createInstance;
+
 public final class ConfigSchema<T> {
 
     private static final Map<Class<?>, ConfigField[]> FIELD_CACHE = new ConcurrentHashMap<>();
@@ -34,14 +36,6 @@ public final class ConfigSchema<T> {
                 .filter(f -> !f.isAnnotationPresent(Exclude.class))
                 .map(ConfigField::of)
                 .toArray(ConfigField[]::new);
-    }
-
-    private static <T> T createInstance(final Class<T> type) {
-        try {
-            return type.getDeclaredConstructor().newInstance();
-        } catch (final Exception e) {
-            throw new ConfigException("Cannot create config instance: " + type.getName(), e);
-        }
     }
 
     public T instance() {

@@ -1,6 +1,7 @@
 package dev.kajteh.configma.serialization.serializer.builtin;
 
 import dev.kajteh.configma.serialization.serializer.TypeSerializer;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 
@@ -23,7 +24,7 @@ public class InstantSerializer implements TypeSerializer<Instant, String> {
     }
 
     @Override
-    public boolean matches(final Class<?> type) {
+    public boolean matches(final @NotNull Class<?> type) {
         return Instant.class.isAssignableFrom(type);
     }
 }

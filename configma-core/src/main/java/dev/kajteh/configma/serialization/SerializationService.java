@@ -81,7 +81,7 @@ public final class SerializationService {
 
                 case ObjectSerializer<?> objectSerializer when raw instanceof Map<?, ?> map ->
                         asObjectSerializer(objectSerializer)
-                                .deserialize(new DeserializationContext(this, (Map<String, Object>) map));
+                                .deserialize(new DeserializationContext(this, rawType, (Map<String, Object>) map));
 
                 default -> throw new ConfigException("Unsupported serializer type: " + serializer.getClass());
             };

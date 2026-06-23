@@ -3,20 +3,25 @@ package dev.kajteh.configma;
 import dev.kajteh.configma.exception.ConfigException;
 import dev.kajteh.configma.serialization.serializer.Serializer;
 import dev.kajteh.configma.serialization.serializer.builtin.InstantSerializer;
+import dev.kajteh.configma.serialization.serializer.builtin.RecordSerializer;
 import dev.kajteh.configma.serialization.serializer.builtin.UUIDSerializer;
+import dev.kajteh.configma.serialization.util.TypeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+
+import static dev.kajteh.configma.serialization.util.TypeUtil.createInstance;
 
 public final class ConfigBuilder<T> {
 
     private static final List<Serializer<?, ?>> BUILTIN_SERIALIZERS = List.of(
             new UUIDSerializer(),
             new InstantSerializer()
+            //new RecordSerializer()
     );
 
     private final List<Serializer<?, ?>> serializers = new ArrayList<>(BUILTIN_SERIALIZERS);

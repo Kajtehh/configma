@@ -1,6 +1,7 @@
 package dev.kajteh.configma.serialization;
 
 import dev.kajteh.configma.serialization.serializer.Serializer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -17,11 +18,13 @@ public final class SerializerRegistry {
 
     @SuppressWarnings("unchecked")
     public <T> Serializer<T, ?> findSerializer(final Class<?> rawType) {
-        return (Serializer<T, ?>) this.serializerCache.computeIfAbsent(rawType, type ->
-                this.serializers.stream()
-                        .filter(s -> s.matches(type))
-                        .findFirst()
-                        .orElse(null)
-        );
+        return (Serializer<T, ?>) this.serializerCache.computeIfAbsent(rawType, this::getSerializer);
+    }
+
+    private @Nullable Serializer<?, ?> getSerializer(final Class<?> type) {
+        return this.serializers.stream()
+                .filter(s -> s.matches(type))
+                .findFirst()
+                .orElse(null);
     }
 }
